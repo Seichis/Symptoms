@@ -1,5 +1,6 @@
 package com.masterthesis.personaldata.symptoms;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.google.android.gms.location.ActivityRecognition;
 import com.masterthesis.personaldata.symptoms.datamodel.Symptom;
 import com.masterthesis.personaldata.symptoms.fragments.BaseActivity;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
@@ -64,6 +66,7 @@ public class MainActivity extends BaseActivity
         SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
+        startActivity(new Intent(this, ActivityRecognitionActivity.class));
 
     }
 
