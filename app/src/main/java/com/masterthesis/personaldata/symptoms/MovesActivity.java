@@ -1,10 +1,6 @@
 package com.masterthesis.personaldata.symptoms;
 
-import android.content.ActivityNotFoundException;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -12,17 +8,17 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.midhunarmid.movesapi.MovesAPI;
 import com.midhunarmid.movesapi.MovesHandler;
+import com.midhunarmid.movesapi.activity.ActivityData;
+import com.midhunarmid.movesapi.activity.TrackPointsData;
 import com.midhunarmid.movesapi.auth.AuthData;
 import com.midhunarmid.movesapi.profile.ProfileData;
+import com.midhunarmid.movesapi.segment.SegmentData;
 import com.midhunarmid.movesapi.storyline.StorylineData;
 import com.midhunarmid.movesapi.summary.SummaryData;
 import com.midhunarmid.movesapi.summary.SummaryListData;
@@ -43,8 +39,143 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
     private Button mButtonSubmit;
     private ProgressBar mProgressRequest;
     private TextView mTvResponse;
+    private MovesHandler<AuthData> authDialogHandler = new MovesHandler<AuthData>() {
+        @Override
+        public void onSuccess(AuthData arg0) {
+            toggleProgress(false);
+            updateResponse("Access Token : " + arg0.getAccessToken() + "\n"
+                    + "Expires In : " + arg0.getExpiresIn() + "\n"
+                    + "User ID : " + arg0.getUserID());
+        }
+
+        @Override
+        public void onFailure(MovesStatus status, String message) {
+            toggleProgress(false);
+            updateResponse("Request Failed! \n"
+                    + "Status Code : " + status + "\n"
+                    + "Status Message : " + message + "\n\n"
+                    + "Specific Message : " + status.getStatusMessage());
+        }
+    };
+    private MovesHandler<ProfileData> profileHandler = new MovesHandler<ProfileData>() {
+
+        @Override
+        public void onSuccess(ProfileData arg0) {
+            toggleProgress(false);
+            updateResponse("User ID : " + arg0.getUserID()
+                    + "\nUser Platform : " + arg0.getPlatform());
+        }
+
+        @Override
+        public void onFailure(MovesStatus status, String message) {
+            toggleProgress(false);
+            updateResponse("Request Failed! \n"
+                    + "Status Code : " + status + "\n"
+                    + "Status Message : " + message + "\n\n"
+                    + "Specific Message : " + status.getStatusMessage());
+        }
+    };
+    private MovesHandler<ArrayList<SummaryListData>> summaryHandler = new MovesHandler<ArrayList<SummaryListData>>() {
+        @Override
+        public void onSuccess(ArrayList<SummaryListData> result) {
+            toggleProgress(false);
+            for (SummaryListData sld : result) {
+                Log.i(TAG, "Calories Idle : " + sld.getCaloriesIdle());
+                Log.i(TAG, "Last update : " + sld.getLastUpdate());
+                Log.i(TAG, "Date : " + sld.getDate());
+
+                ArrayList<SummaryData> summaries = sld.getSummaries();
+                for (SummaryData sd : summaries) {
+                    Log.i(TAG, "Activity : " + sd.getActivity());
+                    Log.i(TAG, "Calories : " + sd.getCalories());
+                    Log.i(TAG, "Distance : " + sd.getDistance());
+                    Log.i(TAG, "Duration : " + sd.getDuration());
+                    Log.i(TAG, "Group : " + sd.getGroup());
+                    Log.i(TAG, "Steps : " + sd.getSteps());
+                }
+
+            }
+            updateResponse("Summary Items : " + result.size());
+        }
+
+        @Override
+        public void onFailure(MovesStatus status, String message) {
+            toggleProgress(false);
+            updateResponse("Request Failed! \n"
+                    + "Status Code : " + status + "\n"
+                    + "Status Message : " + message + "\n\n"
+                    + "Specific Message : " + status.getStatusMessage());
+        }
+    };
+    private MovesHandler<ArrayList<StorylineData>> storylineHandler = new MovesHandler<ArrayList<StorylineData>>() {
+        @Override
+        public void onSuccess(ArrayList<StorylineData> result) {
+            toggleProgress(false);
+            for (StorylineData sld : result) {
+                Log.i(TAG, "Calories Idle : " + sld.getCaloriesIdle());
+                Log.i(TAG, "Last update : " + sld.getLastUpdate());
+                Log.i(TAG, "Date : " + sld.getDate());
+
+                ArrayList<SegmentData> segments = sld.getSegments();
+                for (SegmentData sd : segments) {
+                    Log.i(TAG, "Segments start time : " + sd.getStartTime());
+                    Log.i(TAG, "Segments end time : " + sd.getEndTime());
+                    Log.i(TAG, "Segments type : " + sd.getType());
+                    if (sd.getPlace() != null) {
+                        Log.i(TAG, "Segments place foursquare: " + sd.getPlace().getFoursquareId());
+                        Log.i(TAG, "Segments place type : " + sd.getPlace().getType());
+                        Log.i(TAG, "Segments place name: " + sd.getPlace().getName());
+                        Log.i(TAG, "Segments place foursquare id : " + sd.getPlace().getFoursquareCategoryIds());
+                        Log.i(TAG, "Segments place location : " + sd.getPlace().getLocation());
+                    }
+                    ArrayList<ActivityData> activities = sd.getActivities();
+                    for (ActivityData ad : activities) {
+                        Log.i(TAG, "Activities: name : " + ad.getActivity());
+                        Log.i(TAG, "Activities: start time : " + ad.getStartTime());
+                        Log.i(TAG, "Activities: end time : " + ad.getEndTime());
+                        Log.i(TAG, "Activities: calories : " + ad.getCalories());
+                        Log.i(TAG, "Activities: manual : " + ad.getManual());
+                        Log.i(TAG, "Activities: distance : " + ad.getDistance());
+                        Log.i(TAG, "Activities: duration : " + ad.getDuration());
+                        Log.i(TAG, "Activities: group : " + ad.getGroup());
+                        Log.i(TAG, "Activities: steps : " + ad.getSteps());
+                        ArrayList<TrackPointsData> trackPoints = ad.getTrackPoints();
+                        for (TrackPointsData tpd : trackPoints) {
+                            Log.i(TAG, "Track points" + tpd.getLat());
+                            Log.i(TAG, "Track points" + tpd.getLat());
+                            Log.i(TAG, "Track points" + tpd.getLat());
+                        }
+                        Log.i(TAG, "Activities: start time : " + ad.getTrackPoints());
 
 
+                    }
+
+                }
+
+                ArrayList<SummaryData> summaries = sld.getSummary();
+                for (SummaryData sd : summaries) {
+                    Log.i(TAG, "Activity : " + sd.getActivity());
+                    Log.i(TAG, "Calories : " + sd.getCalories());
+                    Log.i(TAG, "Distance : " + sd.getDistance());
+                    Log.i(TAG, "Duration : " + sd.getDuration());
+                    Log.i(TAG, "Group : " + sd.getGroup());
+                    Log.i(TAG, "Steps : " + sd.getSteps());
+                }
+
+            }
+
+            updateResponse("Summary Items : " + result.size());
+        }
+
+        @Override
+        public void onFailure(MovesStatus status, String message) {
+            toggleProgress(false);
+            updateResponse("Request Failed! \n"
+                    + "Status Code : " + status + "\n"
+                    + "Status Message : " + message + "\n\n"
+                    + "Specific Message : " + status.getStatusMessage());
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,10 +250,10 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
                 MovesAPI.getStoryline_SpecificWeek(storylineHandler, "2016-W06", null, false);
                 break;
             case 12: // Get Storyline Month
-                MovesAPI.getStoryline_SpecificMonth(storylineHandler, "201602", null, true);
+                MovesAPI.getStoryline_SpecificMonth(storylineHandler, "201601", null, false);
                 break;
             case 13: // Get Storyline Range
-                MovesAPI.getStoryline_WithinRange(storylineHandler, "20160201", "20160212", null, false);
+                MovesAPI.getStoryline_WithinRange(storylineHandler, "20160210", "20160212", null, true);
                 break;
             case 14: // Get Storyline PastDays
                 MovesAPI.getStoryline_PastDays(storylineHandler, "2", null, true);
@@ -148,112 +279,6 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private MovesHandler<AuthData> authDialogHandler = new MovesHandler<AuthData>() {
-        @Override
-        public void onSuccess(AuthData arg0) {
-            toggleProgress(false);
-            updateResponse("Access Token : " + arg0.getAccessToken() + "\n"
-                    + "Expires In : " + arg0.getExpiresIn() + "\n"
-                    + "User ID : " + arg0.getUserID());
-        }
-
-        @Override
-        public void onFailure(MovesStatus status, String message) {
-            toggleProgress(false);
-            updateResponse("Request Failed! \n"
-                    + "Status Code : " + status + "\n"
-                    + "Status Message : " + message + "\n\n"
-                    + "Specific Message : " + status.getStatusMessage());
-        }
-    };
-
-    private MovesHandler<ProfileData> profileHandler = new MovesHandler<ProfileData>() {
-
-        @Override
-        public void onSuccess(ProfileData arg0) {
-            toggleProgress(false);
-            updateResponse("User ID : " + arg0.getUserID()
-                    + "\nUser Platform : " + arg0.getPlatform());
-        }
-
-        @Override
-        public void onFailure(MovesStatus status, String message) {
-            toggleProgress(false);
-            updateResponse("Request Failed! \n"
-                    + "Status Code : " + status + "\n"
-                    + "Status Message : " + message + "\n\n"
-                    + "Specific Message : " + status.getStatusMessage());
-        }
-    };
-
-    private MovesHandler<ArrayList<SummaryListData>> summaryHandler = new MovesHandler<ArrayList<SummaryListData>>() {
-        @Override
-        public void onSuccess(ArrayList<SummaryListData> result) {
-            toggleProgress(false);
-            for (SummaryListData sld : result){
-                Log.i(TAG,"Calories Idle : "+ sld.getCaloriesIdle());
-                Log.i(TAG,"Last update : "+ sld.getLastUpdate());
-                Log.i(TAG,"Date : "+ sld.getDate());
-
-                ArrayList<SummaryData> summaries = sld.getSummaries();
-                for (SummaryData sd : summaries){
-                    Log.i(TAG,"Activity : "+ sd.getActivity());
-                    Log.i(TAG,"Calories : "+ sd.getCalories());
-                    Log.i(TAG,"Distance : "+ sd.getDistance());
-                    Log.i(TAG,"Duration : "+ sd.getDuration());
-                    Log.i(TAG,"Group : "+sd.getGroup());
-                    Log.i(TAG,"Steps : "+sd.getSteps());
-                }
-
-            }
-            updateResponse("Summary Items : " + result.size());
-        }
-
-        @Override
-        public void onFailure(MovesStatus status, String message) {
-            toggleProgress(false);
-            updateResponse("Request Failed! \n"
-                    + "Status Code : " + status + "\n"
-                    + "Status Message : " + message + "\n\n"
-                    + "Specific Message : " + status.getStatusMessage());
-        }
-    };
-
-    private MovesHandler<ArrayList<StorylineData>> storylineHandler = new MovesHandler<ArrayList<StorylineData>>() {
-        @Override
-        public void onSuccess(ArrayList<StorylineData> result) {
-            toggleProgress(false);
-            for (StorylineData sld : result){
-                Log.i(TAG,"Calories Idle : "+ sld.getCaloriesIdle());
-                Log.i(TAG,"Last update : "+ sld.getLastUpdate());
-                Log.i(TAG,"Date : "+ sld.getDate());
-                Log.i(TAG,"Segments : "+ sld.getSegments());
-
-                ArrayList<SummaryData> summaries = sld.getSummary();
-                for (SummaryData sd : summaries){
-                    Log.i(TAG,"Activity : "+ sd.getActivity());
-                    Log.i(TAG,"Calories : "+ sd.getCalories());
-                    Log.i(TAG,"Distance : "+ sd.getDistance());
-                    Log.i(TAG,"Duration : "+ sd.getDuration());
-                    Log.i(TAG,"Group : "+sd.getGroup());
-                    Log.i(TAG,"Steps : "+sd.getSteps());
-                }
-
-            }
-
-            updateResponse("Summary Items : " + result.get(0).getSegments().get(0).getActivities().get(0).getActivity());
-        }
-
-        @Override
-        public void onFailure(MovesStatus status, String message) {
-            toggleProgress(false);
-            updateResponse("Request Failed! \n"
-                    + "Status Code : " + status + "\n"
-                    + "Status Message : " + message + "\n\n"
-                    + "Specific Message : " + status.getStatusMessage());
-        }
-    };
-
     public void toggleProgress(final boolean isProgrressing) {
         runOnUiThread(new Runnable() {
             @Override
@@ -271,4 +296,5 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
                 mTvResponse.setText(String.valueOf(message));
             }
         });
-    }}
+    }
+}
