@@ -44,4 +44,5 @@ dependencies {
     compile 'com.ogaclejapan.smarttablayout:utils-v4:1.6.0@aar'
     compile 'com.android.support:support-v4:23.1.1'
     compile project(':movesAndroidAPI')
+    compile project(':yWeatherGetter4a')
 }
