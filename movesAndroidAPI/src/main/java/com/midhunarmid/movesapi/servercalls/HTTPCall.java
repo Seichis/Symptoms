@@ -140,7 +140,7 @@ public class HTTPCall {
 	 * @param to : Range end in yyyyMMdd or yyyy-MM-dd format
 	 * @param pastDays :  How many past days to return, including today (in users current time zone)
 	 * @param updatedSince : [optional] if set, return only days which data has been updated since 
-	 * given time stamp in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, pass <code>null</code> if not required.
+	 * given time stamp in ISO 8601 (yyyyMMdd T HHmmssZ) format, pass <code>null</code> if not required.
 	 * @see <a href="https://dev.moves-app.com/docs/api_summaries">Moves Developer Page for Daily Summaries</a>
 	 */
 	public static void getDailySummaryList(final MovesHandler<ArrayList<SummaryListData>> handler, 
@@ -222,7 +222,7 @@ public class HTTPCall {
 	 * @param to : Range end in yyyyMMdd or yyyy-MM-dd format
 	 * @param pastDays :  How many past days to return, including today (in users current time zone)
 	 * @param updatedSince : [optional] if set, return only days which data has been updated since
-	 * given time stamp in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, pass <code>null</code> if not required.
+	 * given time stamp in ISO 8601 (yyyyMMdd T HHmmssZ) format, pass <code>null</code> if not required.
 	 * @param needTrackPoints : [optional]  if true, the returned activities also include track point information. 
 	 * Including track points limits the query range to 7 days.
 	 * @see <a href="https://dev.moves-app.com/docs/api_storyline">Moves Developer Page for Storyline</a>
@@ -308,7 +308,7 @@ public class HTTPCall {
 	 * @param to : Range end in yyyyMMdd or yyyy-MM-dd format
 	 * @param pastDays :  How many past days to return, including today (in users current time zone)
 	 * @param updatedSince : [optional] if set, return only days which data has been updated since
-	 * given time stamp in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, pass <code>null</code> if not required.
+	 * given time stamp in ISO 8601 (yyyyMMdd T HHmmssZ) format, pass <code>null</code> if not required.
 	 * @see <a href="https://dev.moves-app.com/docs/api_activity_list">Moves Developer Page for Activity list</a>
 	 */
 	public static void getDailyActivitiesList(final MovesHandler<ArrayList<StorylineData>> handler, 

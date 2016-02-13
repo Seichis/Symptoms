@@ -31,12 +31,12 @@ public class SegmentData {
 		return type;
 	}
 	
-	/** Segment start time in ISO 8601 (yyyyMMdd’T’HHmmssZ) format **/
+	/** Segment start time in ISO 8601 (yyyyMMdd T HHmmssZ) format **/
 	public String getStartTime() {
 		return startTime;
 	}
 	
-	/** Segment end time in ISO 8601 (yyyyMMdd’T’HHmmssZ) format **/
+	/** Segment end time in ISO 8601 (yyyyMMdd T HHmmssZ) format **/
 	public String getEndTime() {
 		return endTime;
 	}
@@ -51,7 +51,7 @@ public class SegmentData {
 		return activities;
 	}
 	
-	/** When the segment was last updated in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, always in UTC **/
+	/** When the segment was last updated in ISO 8601 (yyyyMMdd T HHmmssZ) format, always in UTC **/
 	public String getLastUpdate() {
 		return lastUpdate;
 	}
@@ -65,12 +65,12 @@ public class SegmentData {
 		this.type = type;
 	}
 	
-	/** Segment start time in ISO 8601 (yyyyMMdd’T’HHmmssZ) format **/
+	/** Segment start time in ISO 8601 (yyyyMMdd T HHmmssZ) format **/
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
 	}
 	
-	/** Segment end time in ISO 8601 (yyyyMMdd’T’HHmmssZ) format **/
+	/** Segment end time in ISO 8601 (yyyyMMdd T HHmmssZ) format **/
 	public void setEndTime(String endTime) {
 		this.endTime = endTime;
 	}
@@ -85,7 +85,7 @@ public class SegmentData {
 		this.activities = activities;
 	}
 	
-	/** When the segment was last updated in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, always in UTC **/
+	/** When the segment was last updated in ISO 8601 (yyyyMMdd T HHmmssZ) format, always in UTC **/
 	public void setLastUpdate(String lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}

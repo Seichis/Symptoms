@@ -46,7 +46,7 @@ public class StorylineData {
 		return caloriesIdle;
 	}
 	
-	/** When the storyline was last updated in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, always in UTC **/
+	/** When the storyline was last updated in ISO 8601 (yyyyMMdd T HHmmssZ) format, always in UTC **/
 	public String getLastUpdate() {
 		return lastUpdate;
 	}
@@ -75,7 +75,7 @@ public class StorylineData {
 		this.caloriesIdle = caloriesIdle;
 	}
 	
-	/** When the summary data was last updated in ISO 8601 (yyyyMMdd’T’HHmmssZ) format, always in UTC **/
+	/** When the summary data was last updated in ISO 8601 (yyyyMMdd T HHmmssZ) format, always in UTC **/
 	public void setLastUpdate(String lastUpdate) {
 		this.lastUpdate = lastUpdate;
 	}
