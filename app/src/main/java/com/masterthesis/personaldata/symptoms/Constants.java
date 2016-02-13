@@ -5,9 +5,6 @@ import android.content.res.Resources;
 
 import com.google.android.gms.location.DetectedActivity;
 
-/**
- * Created by Konstantinos Michail on 2/11/2016.
- */
 public class Constants {
 
     private Constants() {

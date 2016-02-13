@@ -338,6 +338,7 @@ public class ActivityRecognitionActivity extends AppCompatActivity implements
             ArrayList<DetectedActivity> updatedActivities =
                     intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
             updateDetectedActivitiesList(updatedActivities);
+            mAdapter.notifyDataSetChanged();
         }
     }
 }

@@ -29,4 +29,29 @@
 
     <string name="not_connected">GoogleApiClient not yet connected. Try again.</string>
     <string name="title_activity_activity_recognition">ActivityRecognitionActivity</string>
+    <string name="title_activity_moves">MovesActivity</string>
+
+    <string-array name="API_Names">
+        <!-- 0 --> <item>Authenticate</item>
+        <!-- 1 --> <item>Get Auth Data</item>
+        <!-- 2 --> <item>Get Profile</item>
+        <!-- 3 --> <item>------</item>
+        <!-- 4 --> <item>Get Summary Day</item>
+        <!-- 5 --> <item>Get Summary Week</item>
+        <!-- 6 --> <item>Get Summary Month</item>
+        <!-- 7 --> <item>Get Summary Range</item>
+        <!-- 8 --> <item>Get Summary Past Days</item>
+        <!-- 9 --> <item>------</item>
+        <!-- 10--> <item>Get Storyline Day</item>
+        <!-- 11--> <item>Get Storyline Week</item>
+        <!-- 12--> <item>Get Storyline Month</item>
+        <!-- 13--> <item>Get Storyline Range</item>
+        <!-- 14--> <item>Get Storyline Past Days</item>
+        <!-- 15--> <item>------</item>
+        <!-- 16--> <item>Get Activities Day</item>
+        <!-- 17--> <item>Get Activities Week</item>
+        <!-- 18--> <item>Get Activities Month</item>
+        <!-- 19--> <item>Get Activities Range</item>
+        <!-- 20--> <item>Get Activities Past Days</item>
+    </string-array>
 </resources>

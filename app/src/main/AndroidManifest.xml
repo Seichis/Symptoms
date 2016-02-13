@@ -48,13 +48,20 @@
         <activity
             android:name=".ActivityRecognitionActivity"
             android:label="@string/title_activity_activity_recognition"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
-        <!-- Service that provides activity recognition data. Setting the android:exported attribute
+            android:theme="@style/AppTheme.NoActionBar" />
+        <!--
+        Service that provides activity recognition data. Setting the android:exported attribute
         to "false" stops other apps from starting this service, even when using an explicit
-        intent. -->
+        intent.
+        -->
         <service
             android:name=".activityrecognition.DetectedActivitiesIntentService"
             android:exported="false" />
+
+        <activity
+            android:name=".MovesActivity"
+            android:label="@string/title_activity_moves"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>
