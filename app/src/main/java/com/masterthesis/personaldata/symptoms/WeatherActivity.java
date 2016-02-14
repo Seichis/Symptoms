@@ -7,12 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 
-import com.masterthesis.personaldata.symptoms.managers.WeatherManager;
+import com.masterthesis.personaldata.symptoms.managers.DataManager;
 
 public class WeatherActivity extends AppCompatActivity {
 
-    WeatherManager weatherManager=WeatherManager.getInstance();
-
+    DataManager dataManager=DataManager.getInstance();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,7 +28,7 @@ public class WeatherActivity extends AppCompatActivity {
             }
         });
 
-        weatherManager.init(this);
+        dataManager.init(this);
 
     }
 }

@@ -34,8 +34,6 @@ public class SymptomManager{
 
     public void createSymptom(String type,long timestamp) {
         Symptom symptom=new Symptom(type);
-        WeatherManager wm = WeatherManager.getInstance();
-        wm.init(context);
 
     }
 

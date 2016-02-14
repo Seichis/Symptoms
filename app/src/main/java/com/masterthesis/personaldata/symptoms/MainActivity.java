@@ -65,8 +65,8 @@ public class MainActivity extends BaseActivity
         SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
-//        startActivity(new Intent(this, MovesActivity.class));
-        startActivity(new Intent(this, WeatherActivity.class));
+        startActivity(new Intent(this, MovesActivity.class));
+//        startActivity(new Intent(this, WeatherActivity.class));
 //        startActivity(new Intent(this, ActivityRecognitionActivity.class));
 
     }

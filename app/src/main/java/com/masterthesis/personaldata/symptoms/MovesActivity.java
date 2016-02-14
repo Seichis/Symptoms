@@ -11,12 +11,13 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.masterthesis.personaldata.symptoms.managers.MovesManager;
+import com.masterthesis.personaldata.symptoms.managers.DataManager;
+import com.masterthesis.personaldata.symptoms.managers.DataManager;
 import com.midhunarmid.movesapi.auth.AuthData;
 
 public class MovesActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "Moves";
-    private MovesManager movesManager = MovesManager.getInstance();
+    private DataManager dataManager = DataManager.getInstance();
     private Spinner mSpinnerAPI;
     private Button mButtonSubmit;
     private ProgressBar mProgressRequest;
@@ -45,7 +46,7 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
 
         mButtonSubmit.setOnClickListener(this);
 
-        movesManager.init(this);
+        dataManager.init(this);
 
     }
 
@@ -54,11 +55,11 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
 //        toggleProgress(true);
         switch (mSpinnerAPI.getSelectedItemPosition()) {
             case 0: // Authenticate
-//                MovesAPI.authenticate(movesManager.getAuthDialogHandler(), MovesActivity.this);
-                movesManager.authenticate(MovesActivity.this);
+//                MovesAPI.authenticate(dataManager.getAuthDialogHandler(), MovesActivity.this);
+                dataManager.movesAuthenticate(MovesActivity.this);
                 break;
             case 1: // Get Auth Data
-                AuthData auth = movesManager.getAuthData();
+                AuthData auth = dataManager.getMovesAuthData();
                 if (auth != null) {
                     updateResponse("Access Token : " + auth.getAccessToken() + "\n"
                             + "Expires In : " + auth.getExpiresIn() + "\n"
@@ -69,52 +70,52 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
 //                toggleProgress(false);
                 break;
             case 2: // Get Profile
-                movesManager.profile();
+                dataManager.movesProfile();
                 break;
             case 4: // Get Summary Day
-                movesManager.summarySingleDay("20160212");
+                dataManager.movesSummarySingleDay("20160214");
                 break;
             case 5: // Get Summary Week
-                movesManager.summaryWeek("2016-W06");
+                dataManager.movesSummaryWeek("2016-W06");
                 break;
             case 6: // Get Summary Month
-                movesManager.summaryMonth("201602");
+                dataManager.movesSummaryMonth("201602");
                 break;
             case 7: // Get Summary Range
-                movesManager.summaryRange("20160211", "20160212");
+                dataManager.movesSummaryRange("20160211", "20160212");
                 break;
             case 8: // Get Summary PastDays
-                movesManager.summaryPastDays("31");
+                dataManager.movesSummaryPastDays("31");
                 break;
             case 10: // Get Storyline Day
-                movesManager.storylineDay("20160212",true);
+                dataManager.movesStorylineDay("20160214", true);
                 break;
             case 11: // Get Storyline Week
-                movesManager.storylineWeek("2016-W06",true);
+                dataManager.movesStorylineWeek("2016-W06", true);
                 break;
             case 12: // Get Storyline Month
-                movesManager.storylineMonth("201602");
+                dataManager.movesStorylineMonth("201602");
                 break;
             case 13: // Get Storyline Range
-                movesManager.storylineRange("20160211", "20160212",true);
+                dataManager.movesStorylineRange("20160211", "20160212", true);
                 break;
             case 14: // Get Storyline PastDays
-                movesManager.storylinePastDays("7",true);
+                dataManager.movesStorylinePastDays("7", true);
                 break;
             case 16: // Get Activities Day
-                movesManager.activitiesDay("20160212");
+                dataManager.movesActivitiesDay("20160214");
                 break;
             case 17: // Get Activities Week
-                movesManager.activitiesWeek("2016-W06");
+                dataManager.movesActivitiesWeek("2016-W06");
                 break;
             case 18: // Get Activities Month
-                movesManager.activitiesMonth("201602");
+                dataManager.movesActivitiesMonth("201602");
                 break;
             case 19: // Get Activities Range
-                movesManager.activitiesRange("20160211", "20160212");
+                dataManager.movesActivitiesRange("20160211", "20160212");
                 break;
             case 20: // Get Activities PastDays
-                movesManager.activitiesPastDays("31");
+                dataManager.movesActivitiesPastDays("31");
                 break;
             default:
                 break;
