@@ -1,6 +1,7 @@
 package com.masterthesis.personaldata.symptoms;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -28,13 +29,14 @@ public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.OnHomeFragmentInteractionListener
         , SymptomFragment.OnSymptomFragmentInteractionListener {
 
+    Intent serviceIntent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,9 +68,21 @@ public class MainActivity extends BaseActivity
         viewPagerTab.setViewPager(viewPager);
 
         startActivity(new Intent(this, MovesActivity.class));
+
+
+        serviceIntent=new Intent(this,BackgroundService.class);
+        if (!BackgroundService.isOn){
+            startService(serviceIntent);
+        }
 //        startActivity(new Intent(this, WeatherActivity.class));
 //        startActivity(new Intent(this, ActivityRecognitionActivity.class));
 
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        stopService(serviceIntent);
     }
 
     @Override

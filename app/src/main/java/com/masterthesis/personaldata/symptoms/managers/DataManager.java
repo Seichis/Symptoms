@@ -144,7 +144,6 @@ public class DataManager implements YahooWeatherInfoListener,
                             Log.i(TAG2, "---Track points" + tpd.getTime());
                         }
 
-
                     }
 
                 }
@@ -218,12 +217,6 @@ public class DataManager implements YahooWeatherInfoListener,
 
 
         if (weatherInfo != null) {
-//            if (mYahooWeather.getSearchMode() == YahooWeather.SEARCH_MODE.GPS) {
-//                if (weatherInfo.getAddress() != null) {
-//                }
-//            }
-
-
             symptomContext.setBaroPressureRising(weatherInfo.getAtmosphereRising());
             symptomContext.setHumidity(weatherInfo.getAtmosphereHumidity());
             symptomContext.setWindChill(weatherInfo.getWindChill());
@@ -430,6 +423,7 @@ public class DataManager implements YahooWeatherInfoListener,
     public void movesActivitiesPastDays(String pastDays) {
         MovesAPI.getActivities_PastDays(storylineHandler, "31", null);
     }
+
 
 
 }
