@@ -32,7 +32,7 @@ import zh.wang.android.apis.yweathergetter4a.YahooWeatherInfoListener;
  * Created by Konstantinos Michail on 2/14/2016.
  */
 public class DataManager implements YahooWeatherInfoListener,
-        YahooWeatherExceptionListener, Observer {
+        YahooWeatherExceptionListener{
 
     private static final String TAG2 = "Moves";
 
@@ -42,8 +42,8 @@ public class DataManager implements YahooWeatherInfoListener,
     private static final String CLIENT_SCOPES = "activity location";
     private static final String TAG = "DataManager";
     private static DataManager dataManager = new DataManager();
-    private static Context context;
     SymptomContext symptomContext;
+    private Context context;
     private YahooWeather mYahooWeather;
     private MovesHandler<AuthData> authDialogHandler = new MovesHandler<AuthData>() {
         @Override
@@ -94,7 +94,6 @@ public class DataManager implements YahooWeatherInfoListener,
                     Log.i(TAG2, "Group : " + sd.getGroup());
                     Log.i(TAG2, "Steps : " + sd.getSteps());
                 }
-
             }
         }
 
@@ -180,18 +179,22 @@ public class DataManager implements YahooWeatherInfoListener,
 
     public void init(Context _context) {
         context = _context;
-        symptomContext = new SymptomContext();
-        symptomContext.addObserver(dataManager);
-        mYahooWeather = YahooWeather.getInstance(5000, 5000, true);
-        mYahooWeather.setExceptionListener(dataManager);
-        mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
+    }
+
+    public void initializeMoves() {
         try {
-            MovesAPI.init(_context, CLIENT_ID, CLIENT_SECRET, CLIENT_SCOPES, CLIENT_REDIRECTURL);
+            MovesAPI.init(context, CLIENT_ID, CLIENT_SECRET, CLIENT_SCOPES, CLIENT_REDIRECTURL);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        searchByGPS();
+    }
 
+    public void fetchWeatherData() {
+
+        mYahooWeather = YahooWeather.getInstance(10000, 10000, true);
+        mYahooWeather.setExceptionListener(dataManager);
+        mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
+        searchByGPS();
     }
 
     @Override
@@ -215,8 +218,9 @@ public class DataManager implements YahooWeatherInfoListener,
     @Override
     public void gotWeatherInfo(WeatherInfo weatherInfo) {
 
-
         if (weatherInfo != null) {
+            symptomContext = new SymptomContext();
+            symptomContext.addObserver(SymptomManager.getInstance());
             symptomContext.setBaroPressureRising(weatherInfo.getAtmosphereRising());
             symptomContext.setHumidity(weatherInfo.getAtmosphereHumidity());
             symptomContext.setWindChill(weatherInfo.getWindChill());
@@ -231,71 +235,22 @@ public class DataManager implements YahooWeatherInfoListener,
             symptomContext.setCity(weatherInfo.getLocationCity());
             symptomContext.setLatLng(new LatLng(Double.parseDouble(weatherInfo.getConditionLat()), Double.parseDouble(weatherInfo.getConditionLon())));
             symptomContext.setPostCode(weatherInfo.getAddress().getPostalCode());
-            Log.i(TAG, "observers" + symptomContext.countObservers());
-            Log.i(TAG, "observers" + symptomContext.hasChanged());
 
-            symptomContext.notifyObservers("OK");
+            symptomContext.notifyObservers(symptomContext);
 
-//            Log.i(TAG, weatherInfo.getTitle() + "\n"
-//                    + weatherInfo.getWOEIDneighborhood() + ", "
-//                    + weatherInfo.getWOEIDCounty() + ", "
-//                    + weatherInfo.getWOEIDState() + ", "
-//                    + weatherInfo.getWOEIDCountry());
-//            Log.i(TAG, "====== CURRENT ======" + "\n" +
-//                            "date: " + weatherInfo.getCurrentConditionDate() + "\n" +
-//                            "weather: " + weatherInfo.getCurrentText() + "\n" +
-//                            "temperature in ºC: " + weatherInfo.getCurrentTemp() + "\n" +
-//                            "wind chill: " + weatherInfo.getWindChill() + "\n" +
-//                            "wind direction: " + weatherInfo.getWindDirection() + "\n" +
-//                            "wind speed: " + weatherInfo.getWindSpeed() + "\n" +
-//                            "Humidity: " + weatherInfo.getAtmosphereHumidity() + "\n" +
-//                            "Pressure: " + weatherInfo.getAtmospherePressure() + "\n" +
-//                            "Atmosphere rising: " + weatherInfo.getAtmosphereRising() + "\n" +
-//                            "Astronomy sunrise: " + weatherInfo.getAstronomySunrise() + "\n" +
-//                            "Astronomy sunset: " + weatherInfo.getAstronomySunset() + "\n" +
-//                            "Address: " + weatherInfo.getAddress() + "\n" +
-//                            "Code: " + weatherInfo.getCurrentCode() + "\n" +
-//                            "Conditional title: " + weatherInfo.getConditionTitle() + "\n" +
-//                            "Description: " + weatherInfo.getDescription() + "\n" +
-//                            "Country: " + weatherInfo.getLocationCountry() + "\n" +
-//                            "City: " + weatherInfo.getLocationCity() + "\n" +
-//                            "Region: " + weatherInfo.getLocationRegion() + "\n" +
-//                            ":Lat " + weatherInfo.getConditionLat() + "Lon" + weatherInfo.getConditionLon() + "\n" +
-//                            "Visibility: " + weatherInfo.getAtmosphereVisibility()
-//            );
         } else {
             symptomContext.notifyObservers("Error");
         }
     }
 
+    public SymptomContext getSymptomContext(){
+        return symptomContext;
+    }
     private void searchByGPS() {
         mYahooWeather.setNeedDownloadIcons(true);
         mYahooWeather.setUnit(YahooWeather.UNIT.CELSIUS);
         mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
         mYahooWeather.queryYahooWeatherByGPS(context, this);
-    }
-
-    @Override
-    public void update(Observable observable, Object data) {
-        Log.i(TAG, data.getClass().getName());
-        Log.i(TAG, data.getClass().getSimpleName());
-
-        if (data.toString().equals("OK")) {
-            //TODO add logic for saving data
-            Log.i(TAG, data.toString());
-
-        } else if (data.getClass().getSimpleName().equals("Exception")) {
-            Log.i(TAG, data.toString());
-            if (data.toString().contains("Network")) {
-                // No network available do not retry to get info
-
-            } else {
-                dataManager.init(context);
-            }
-
-        } else if (data.toString().equals("Error")) {
-            Toast.makeText(context, "Unknown error occured. Contact the administrator", Toast.LENGTH_LONG).show();
-        }
     }
 
     public void movesAuthenticate(AppCompatActivity activity) {
@@ -423,7 +378,6 @@ public class DataManager implements YahooWeatherInfoListener,
     public void movesActivitiesPastDays(String pastDays) {
         MovesAPI.getActivities_PastDays(storylineHandler, "31", null);
     }
-
 
 
 }

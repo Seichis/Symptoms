@@ -3,6 +3,13 @@ package com.masterthesis.personaldata.symptoms;
 import android.content.Context;
 import android.util.Log;
 
+import com.masterthesis.personaldata.symptoms.datamodel.Symptom;
+import com.masterthesis.personaldata.symptoms.managers.DataManager;
+import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import io.flic.lib.FlicBroadcastReceiver;
 import io.flic.lib.FlicButton;
 import io.flic.lib.FlicManager;
@@ -13,6 +20,8 @@ import io.flic.lib.FlicManager;
 public class MyFlicBroadcastReceiver extends FlicBroadcastReceiver {
     static long tStart;
     static long tEnd;
+    static long measureEndTime=10000;
+    static String TAG="FlicBroadcastReceiver";
 
     @Override
     protected void onRequestAppCredentials(Context context) {
@@ -23,19 +32,24 @@ public class MyFlicBroadcastReceiver extends FlicBroadcastReceiver {
 
     @Override
     public void onButtonUpOrDown(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
+        long tDelta;
+        double elapsedSeconds;
+
         if (isDown) {
             // Code for button up event here
             tStart = System.currentTimeMillis();
             Log.i("time", "  " + tStart);
         } else if (isUp) {
             tEnd = System.currentTimeMillis();
-            long tDelta = tEnd - tStart;
-            double elapsedSeconds = tDelta / 1000.0;
-            Log.i("time", "  " + elapsedSeconds);
-            Log.i("time", "  " + tStart);
-            Log.i("time", "  " + tEnd);
-
+            tDelta = tEnd - tStart;
+            elapsedSeconds = tDelta;
+            SymptomManager symptomManager=SymptomManager.getInstance();
+            symptomManager.manageSymptomInput(elapsedSeconds);
+            Log.i(TAG, "  " + tStart);
+            Log.i(TAG, "  " + tEnd);
         }
+
+
     }
 
     @Override

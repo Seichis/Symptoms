@@ -1,4 +1,4 @@
-package com.masterthesis.personaldata.symptoms.fragments;
+package com.masterthesis.personaldata.symptoms;
 
 import android.app.Activity;
 import android.app.Dialog;

@@ -1,18 +1,29 @@
 package com.masterthesis.personaldata.symptoms.datamodel;
 
+import java.util.Observable;
+
 /**
  * Created by Konstantinos Michail on 2/11/2016.
  */
-public class Symptom {
+public class Symptom extends Observable {
     String symptomType;
-    long timestamp;
+    String timestamp;
     SymptomContext context = null;
+    double intensity;
 
     public Symptom() {
     }
 
     public Symptom(String _symptomType) {
         this.symptomType = _symptomType;
+    }
+
+    public double getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(double intensity) {
+        this.intensity = intensity;
     }
 
     public String getSymptomType() {
@@ -23,11 +34,11 @@ public class Symptom {
         this.symptomType = symptomType;
     }
 
-    public long getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 
@@ -40,9 +51,10 @@ public class Symptom {
     }
 
     public boolean isValid() {
-        if (context == null) {
+        if (this.context == null) {
             return false;
         } else {
+//            setChanged();
             return true;
         }
     }
