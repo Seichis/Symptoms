@@ -9,9 +9,7 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.masterthesis.personaldata.symptoms.timertasks.FlicTimerTask;
 
 import io.flic.lib.FlicAppNotInstalledException;
 import io.flic.lib.FlicManager;
@@ -19,18 +17,10 @@ import io.flic.lib.FlicManagerInitializedCallback;
 
 public class BackgroundService extends Service {
     private static final String TAG = "BackgroundService";
-    static boolean isServiceOn;
 
     MainActivity mainActivity = MainActivity.getInstance();
 
     public BackgroundService() {
-    }
-
-
-
-
-    public static boolean isServiceOn() {
-        return isServiceOn;
     }
 
     @Override
@@ -42,7 +32,6 @@ public class BackgroundService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
 //        MovesTimerTask.startTask();
-
         FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
         if (mainActivity.getButton() == null) {
             try {
@@ -50,13 +39,14 @@ public class BackgroundService extends Service {
                     @Override
                     public void onInitialized(FlicManager manager) {
                         manager.initiateGrabButton(MainActivity.getInstance());
+
                     }
                 });
             } catch (FlicAppNotInstalledException err) {
                 Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
             }
         }
-        SymptomManager symptomManager=SymptomManager.getInstance();
+        SymptomManager symptomManager = SymptomManager.getInstance();
         symptomManager.init(this);
         runAsForeground();
         return START_NOT_STICKY;

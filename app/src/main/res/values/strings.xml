@@ -76,4 +76,9 @@
         <item>Get Activities Past Days</item>
     </string-array>
     <string name="title_activity_weather">WeatherActivity</string>
+    <string name="title_activity_caldroid">CaldroidActivity</string>
+
+    <string name="customize">Customize</string>
+    <string name="show_dialog">Show Dialog</string>
+    <string name="undo">Undo</string>
 </resources>

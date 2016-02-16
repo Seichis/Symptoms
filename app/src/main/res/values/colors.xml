@@ -19,7 +19,8 @@
 
     <color name="medium_text_enabled">#FF000000</color>
     <color name="medium_text_disabled">#4D000000</color>
-
+    <color name="green">#8FCC85</color>
+    <color name="blue">#ff33b5e5</color>
     <color name="light_blue_500">#03A9F4</color>
     <color name="cyan_500">#00BCD4</color>
     <color name="teal_500">#009688</color>

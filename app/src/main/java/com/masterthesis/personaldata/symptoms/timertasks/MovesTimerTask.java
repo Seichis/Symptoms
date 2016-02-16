@@ -1,4 +1,4 @@
-package com.masterthesis.personaldata.symptoms;
+package com.masterthesis.personaldata.symptoms.timertasks;
 
 import android.util.Log;
 

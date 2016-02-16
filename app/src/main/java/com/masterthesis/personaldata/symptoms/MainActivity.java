@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.masterthesis.personaldata.symptoms.datamodel.Symptom;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
+import com.masterthesis.personaldata.symptoms.timertasks.FlicTimerTask;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -66,7 +67,6 @@ public class MainActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -88,31 +88,17 @@ public class MainActivity extends AppCompatActivity
         SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
-//        startActivity(new Intent(this, MovesActivity.class));
+        startActivity(new Intent(this, CaldroidActivity.class));
 
 
         serviceIntent = new Intent(this, BackgroundService.class);
-        if (!isMyServiceRunning(BackgroundService.class)){
+        if (!isMyServiceRunning(BackgroundService.class)) {
             startService(serviceIntent);
-        }else{
-            Log.i(TAG,"Service running");
+        } else {
+            Log.i(TAG, "Service running");
         }
 
 
-//        startActivity(new Intent(this, WeatherActivity.class));
-//        startActivity(new Intent(this, ActivityRecognitionActivity.class));
-
-//        FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
-//        try {
-//            FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
-//                @Override
-//                public void onInitialized(FlicManager manager) {
-//                    manager.initiateGrabButton(MainActivity.this);
-//                }
-//            });
-//        } catch (FlicAppNotInstalledException err) {
-//            Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
-//        }
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -133,10 +119,13 @@ public class MainActivity extends AppCompatActivity
                 button = manager.completeGrabButton(requestCode, resultCode, data);
                 if (button != null) {
                     button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
-                    button.setActiveMode(false);
+//                    button.setActiveMode(false);
                     Toast.makeText(MainActivity.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "button id" + button.getButtonId());
                     Log.i(TAG, "button connection status" + button.getConnectionStatus());
+
+                    FlicTimerTask.startTask();
+
                 } else {
                     Toast.makeText(MainActivity.this, "Did not grab any button", Toast.LENGTH_SHORT).show();
                 }
@@ -164,7 +153,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
-//        Log.i(MyApplication.APPTAG, "Location=  " + getCurrentLocation().toString() + "\nExtras=  " + getCurrentLocation().getAltitude());
 
     }
 
