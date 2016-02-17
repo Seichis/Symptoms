@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.masterthesis.personaldata.symptoms.R;
-import com.masterthesis.personaldata.symptoms.datamodel.Symptom;
+import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 
 /**
  * A simple {@link Fragment} subclass.

@@ -104,4 +104,12 @@ public class Constants {
     public static final long FAST_INTERVAL_CEILING_IN_MILLISECONDS = MILLISECONDS_PER_SECOND
             * FAST_CEILING_IN_SECONDS;
 
+
+    //############ Intent rules main activity
+
+    public static final int BUTTON_NOT_TRACKING=0;
+    public static final int SERVICE_CRASHED=1;
+    public static final int NEED_RESET=2;
+    public static final int UNKNOWN_ERROR=3;
+
 }

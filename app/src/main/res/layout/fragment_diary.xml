@@ -1,0 +1,26 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:dragAndDrop="http://schemas.android.com/apk/res-auto"
+    tools:context="com.masterthesis.personaldata.symptoms.fragments.DiaryFragment">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >
+
+        <com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView
+            android:id="@+id/coolDragAndDropGridView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            dragAndDrop:itemMargin="5dp"
+            dragAndDrop:numColumns="@integer/col_count" >
+        </com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView>
+    </ScrollView>
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/create_diary_button"
+        android:layout_below="@+id/scrollView"/>
+</RelativeLayout>

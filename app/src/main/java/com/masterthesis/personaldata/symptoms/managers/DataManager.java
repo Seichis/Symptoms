@@ -6,7 +6,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.masterthesis.personaldata.symptoms.datamodel.SymptomContext;
+import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
 import com.midhunarmid.movesapi.MovesAPI;
 import com.midhunarmid.movesapi.MovesHandler;
 import com.midhunarmid.movesapi.activity.ActivityData;
@@ -20,8 +20,6 @@ import com.midhunarmid.movesapi.summary.SummaryListData;
 import com.midhunarmid.movesapi.util.MovesStatus;
 
 import java.util.ArrayList;
-import java.util.Observable;
-import java.util.Observer;
 
 import zh.wang.android.apis.yweathergetter4a.WeatherInfo;
 import zh.wang.android.apis.yweathergetter4a.YahooWeather;
@@ -235,7 +233,7 @@ public class DataManager implements YahooWeatherInfoListener,
             symptomContext.setCity(weatherInfo.getLocationCity());
             symptomContext.setLatLng(new LatLng(Double.parseDouble(weatherInfo.getConditionLat()), Double.parseDouble(weatherInfo.getConditionLon())));
             symptomContext.setPostCode(weatherInfo.getAddress().getPostalCode());
-
+//            symptomContext.setPlaceType();
             symptomContext.notifyObservers(symptomContext);
 
         } else {
