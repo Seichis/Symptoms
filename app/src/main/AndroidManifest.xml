@@ -45,6 +45,11 @@
                 <action android:name="io.flic.FLICLIB_EVENT" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name=".alarms.AlarmBReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
 
         <activity
             android:name=".ActivityRecognitionActivity"
@@ -74,7 +79,8 @@
         <activity
             android:name=".CaldroidActivity"
             android:label="@string/title_activity_caldroid"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".DAO.ThingActivity"></activity>
     </application>
 
 </manifest>

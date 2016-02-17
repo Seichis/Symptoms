@@ -1,26 +1,39 @@
 package com.masterthesis.personaldata.symptoms;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.widget.Toast;
 
+import com.j256.ormlite.android.apptools.OrmLiteBaseService;
+import com.masterthesis.personaldata.symptoms.DAO.ThingActivity;
+import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
+import com.masterthesis.personaldata.symptoms.alarms.AlarmBReceiver;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
-import com.masterthesis.personaldata.symptoms.timertasks.FlicTimerTask;
 
 import io.flic.lib.FlicAppNotInstalledException;
 import io.flic.lib.FlicManager;
 import io.flic.lib.FlicManagerInitializedCallback;
 
-public class BackgroundService extends Service {
-    private static final String TAG = "BackgroundService";
+public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
 
+    private final static String LOG_NAME = BackgroundService.class.getName();
+    private static final int notif_id = 1337;
+    static Notification notification;
+    private static PendingIntent pi;
+    private static BackgroundService backgroundService;
     MainActivity mainActivity = MainActivity.getInstance();
 
+    AlarmBReceiver alarmBReceiver=null;
+
     public BackgroundService() {
+    }
+
+    public static BackgroundService getInstance() {
+        return backgroundService;
     }
 
     @Override
@@ -31,7 +44,9 @@ public class BackgroundService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         super.onStartCommand(intent, flags, startId);
-//        MovesTimerTask.startTask();
+
+
+        backgroundService = this;
         FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
         if (mainActivity.getButton() == null) {
             try {
@@ -49,8 +64,10 @@ public class BackgroundService extends Service {
         SymptomManager symptomManager = SymptomManager.getInstance();
         symptomManager.init(this);
         runAsForeground();
+
         return START_NOT_STICKY;
     }
+
 
     @Override
     public void onDestroy() {
@@ -64,18 +81,39 @@ public class BackgroundService extends Service {
     }
 
     private void runAsForeground() {
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
-                notificationIntent, Intent.FILL_IN_ACTION);
-
-        Notification notification = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.common_full_open_on_phone)
-                .setContentText(String.valueOf("Symptoms running"))
-                .setContentIntent(pendingIntent).build();
-
-        startForeground(1337, notification);
-
+        PendingIntent contentIntent = PendingIntent.getActivity(this,
+                0, new Intent(this, ThingActivity.class), 0);
+        notification = getMyActivityNotification("No run yet", contentIntent);
+        if (alarmBReceiver==null) {
+            alarmBReceiver = new AlarmBReceiver();
+            alarmBReceiver.setAlarm(this);
+        }
+        startForeground(notif_id, notification);
     }
 
+
+    private Notification getMyActivityNotification(String text, PendingIntent pendingIntent) {
+        // The PendingIntent to launch our activity if the user selects
+        // this notification
+        CharSequence title = getText(R.string.app_name);
+
+        return new Notification.Builder(this)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)
+                .setContentIntent(pendingIntent).build();
+    }
+
+    /**
+     * This is the method that can be called to update the Notification
+     */
+    public void updateNotification(String text, PendingIntent pendingIntent) {
+
+
+        notification = getMyActivityNotification(text, pendingIntent);
+
+        NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(notif_id, notification);
+    }
 
 }

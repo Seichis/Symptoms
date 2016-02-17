@@ -124,8 +124,6 @@ public class MainActivity extends AppCompatActivity
                     Log.i(TAG, "button id" + button.getButtonId());
                     Log.i(TAG, "button connection status" + button.getConnectionStatus());
 
-                    FlicTimerTask.startTask();
-
                 } else {
                     Toast.makeText(MainActivity.this, "Did not grab any button", Toast.LENGTH_SHORT).show();
                 }
