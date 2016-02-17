@@ -1,4 +1,4 @@
-package com.masterthesis.personaldata.symptoms.datamodel;
+package com.masterthesis.personaldata.symptoms.DAO.model;
 
 import com.google.android.gms.maps.model.LatLng;
 

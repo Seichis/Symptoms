@@ -1,7 +1,5 @@
 package com.masterthesis.personaldata.symptoms;
 
-import android.app.ActivityManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -21,10 +19,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
-import com.masterthesis.personaldata.symptoms.datamodel.Symptom;
+import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
-import com.masterthesis.personaldata.symptoms.timertasks.FlicTimerTask;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -39,13 +36,14 @@ public class MainActivity extends AppCompatActivity
         , SymptomFragment.OnSymptomFragmentInteractionListener {
 
     private static final String TAG = "MainActivity";
-    static MainActivity mainActivity;
+    static MainActivity mainActivity = null;
     Intent serviceIntent;
     FlicButton button;
 
     public static MainActivity getInstance() {
         return mainActivity;
     }
+
 
     public FlicButton getButton() {
         return button;
@@ -56,6 +54,12 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainActivity = this;
+
+        if (getIntent().getExtras()!=null){
+            Bundle extras=getIntent().getExtras();
+            checkRule(extras.getInt("rule",-1));
+        }
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_NOSENSOR);
@@ -88,11 +92,11 @@ public class MainActivity extends AppCompatActivity
         SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
-        startActivity(new Intent(this, CaldroidActivity.class));
+//        startActivity(new Intent(this, CaldroidActivity.class));
 
 
         serviceIntent = new Intent(this, BackgroundService.class);
-        if (!isMyServiceRunning(BackgroundService.class)) {
+        if (!Utils.isMyServiceRunning(BackgroundService.class, this)) {
             startService(serviceIntent);
         } else {
             Log.i(TAG, "Service running");
@@ -101,15 +105,40 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                return true;
-            }
+    private void checkRule(int rule) {
+        switch (rule){
+            case Constants.BUTTON_NOT_TRACKING:
+                //TODO throw an alarm show that the user gets back his button
+                Log.i(TAG,"Button out of sync or range maybe you lost it");
+                break;
+            case Constants.UNKNOWN_ERROR:
+                //TODO Tell the user to contact me and give me details of the error or I will log them and get them somehow
+                Log.i(TAG,"Rules : Invalid rule");
+                break;
+            case Constants.NEED_RESET:
+                //TODO Restart everything and alarm the user to connect the button if needed
+                Log.i(TAG,"Rules : Invalid rule");
+                break;
+            case Constants.SERVICE_CRASHED:
+                //TODO Restart the service
+                startService(serviceIntent);
+                Log.i(TAG, "Rules : Invalid rule");
+                break;
+            default:
+                Log.i(TAG,"Rules : Invalid rule");
+                break;
         }
-        return false;
     }
+
+//    private boolean isMyServiceRunning(Class<?> serviceClass) {
+//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+//            if (serviceClass.getName().equals(service.service.getClassName())) {
+//                return true;
+//            }
+//        }
+//        return false;
+//    }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {

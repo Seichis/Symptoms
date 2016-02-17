@@ -9,9 +9,8 @@ import android.os.IBinder;
 import android.widget.Toast;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseService;
-import com.masterthesis.personaldata.symptoms.DAO.ThingActivity;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
-import com.masterthesis.personaldata.symptoms.alarms.AlarmBReceiver;
+import com.masterthesis.personaldata.symptoms.broadcastreceivers.AlarmBReceiver;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import io.flic.lib.FlicAppNotInstalledException;
@@ -25,7 +24,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     static Notification notification;
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
-    MainActivity mainActivity = MainActivity.getInstance();
+    MainActivity mainActivity = null;
 
     AlarmBReceiver alarmBReceiver=null;
 
@@ -43,27 +42,30 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onStartCommand(intent, flags, startId);
-
-
+//        super.onStartCommand(intent, flags, startId);
+        CustomFlicBroadcastReceiver customFlicBroadcastReceiver=new CustomFlicBroadcastReceiver();
+        mainActivity=MainActivity.getInstance();
         backgroundService = this;
-        FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
-        if (mainActivity.getButton() == null) {
-            try {
-                FlicManager.getInstance(this, new FlicManagerInitializedCallback() {
-                    @Override
-                    public void onInitialized(FlicManager manager) {
-                        manager.initiateGrabButton(MainActivity.getInstance());
+        runAsForeground();
 
-                    }
-                });
-            } catch (FlicAppNotInstalledException err) {
-                Toast.makeText(this, "Flic App is not installed", Toast.LENGTH_SHORT).show();
+        FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
+        if (mainActivity!=null) {
+            if (mainActivity.getButton() == null) {
+                try {
+                    FlicManager.getInstance(backgroundService, new FlicManagerInitializedCallback() {
+                        @Override
+                        public void onInitialized(FlicManager manager) {
+                            manager.initiateGrabButton(MainActivity.getInstance());
+
+                        }
+                    });
+                } catch (FlicAppNotInstalledException err) {
+                    Toast.makeText(backgroundService, "Flic App is not installed", Toast.LENGTH_SHORT).show();
+                }
             }
         }
         SymptomManager symptomManager = SymptomManager.getInstance();
-        symptomManager.init(this);
-        runAsForeground();
+        symptomManager.init(backgroundService);
 
         return START_NOT_STICKY;
     }
@@ -81,14 +83,14 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     }
 
     private void runAsForeground() {
-        PendingIntent contentIntent = PendingIntent.getActivity(this,
-                0, new Intent(this, ThingActivity.class), 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(backgroundService,
+                0, new Intent(backgroundService, MainActivity.class), PendingIntent.FLAG_ONE_SHOT);
         notification = getMyActivityNotification("No run yet", contentIntent);
         if (alarmBReceiver==null) {
             alarmBReceiver = new AlarmBReceiver();
-            alarmBReceiver.setAlarm(this);
+            alarmBReceiver.setAlarm(backgroundService);
         }
-        startForeground(notif_id, notification);
+        backgroundService.startForeground(notif_id, notification);
     }
 
 
@@ -97,7 +99,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
         // this notification
         CharSequence title = getText(R.string.app_name);
 
-        return new Notification.Builder(this)
+        return new Notification.Builder(backgroundService)
                 .setContentTitle(title)
                 .setContentText(text)
                 .setSmallIcon(R.drawable.common_google_signin_btn_icon_light)
