@@ -86,10 +86,10 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
         PendingIntent contentIntent = PendingIntent.getActivity(backgroundService,
                 0, new Intent(backgroundService, MainActivity.class), PendingIntent.FLAG_ONE_SHOT);
         notification = getMyActivityNotification("No run yet", contentIntent);
-        if (alarmBReceiver==null) {
-            alarmBReceiver = new AlarmBReceiver();
-            alarmBReceiver.setAlarm(backgroundService);
-        }
+//        if (alarmBReceiver==null) {
+//            alarmBReceiver = new AlarmBReceiver();
+//            alarmBReceiver.setAlarm(backgroundService);
+//        }
         backgroundService.startForeground(notif_id, notification);
     }
 

@@ -1,8 +1,10 @@
 package com.masterthesis.personaldata.symptoms.DAO.model;
 
+import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -24,7 +26,7 @@ public class Symptom { // extends Observable {
     @DatabaseField(columnName = TIMESTAMP_FIELD_NAME, canBeNull = false)
     Date timestamp;
     @DatabaseField(columnName = SYMPTOM_CONTEXT_FIELD_NAME, canBeNull = false)
-    SymptomContext context = null;
+    String context = null;
     @DatabaseField(columnName = INTENSITY_FIELD_NAME, canBeNull = false)
     double intensity;
     @DatabaseField(generatedId = true)
@@ -90,12 +92,17 @@ public class Symptom { // extends Observable {
         this.timestamp = timestamp;
     }
 
-    public SymptomContext getContext() {
+    public String getContext() {
         return context;
     }
 
-    public void setContext(SymptomContext context) {
+    public void setContext(String context) {
         this.context = context;
+    }
+    public void setContext(SymptomContext context) {
+        Gson gson=new Gson();
+        String sContext=gson.toJson(context,SymptomContext.class);
+        this.context = sContext;
     }
 
     public boolean isValid() {

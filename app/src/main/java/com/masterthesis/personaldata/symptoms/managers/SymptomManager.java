@@ -3,9 +3,11 @@ package com.masterthesis.personaldata.symptoms.managers;
 import android.content.Context;
 import android.database.SQLException;
 import android.os.CountDownTimer;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
@@ -65,7 +67,9 @@ public class SymptomManager implements Observer {
 
                 public void onFinish() {
 //                    symptom.setTimestamp(timeStamp);
-                    symptom.setContext(dataManager.getSymptomContext());
+                    Gson gson=new Gson();
+                    String sContext=gson.toJson(dataManager.getSymptomContext(),SymptomContext.class);
+                    symptom.setContext(sContext);
                     symptom.setIntensity(Collections.max(symptomInputList));
                     symptom.setDiary(DiaryManager.getInstance().getActiveDiary());
                     int symptomType = symptomInputList.size() - 1;
@@ -118,7 +122,7 @@ public class SymptomManager implements Observer {
         if (data.getClass().getSimpleName().equals(SymptomContext.class.getSimpleName())) {
             Log.i(TAG, "Class symptom context");
 
-            symptom.setContext((SymptomContext) data);
+//            symptom.setContext(dataManager.getSymptomContext());
             dataManager.getSymptomContext().deleteObservers();
             if (!isCountDown) {
                 //That means that the weather data returned after the symptoms was saved

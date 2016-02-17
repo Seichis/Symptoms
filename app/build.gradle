@@ -31,6 +31,8 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     testCompile 'junit:junit:4.12'
     compile project(':fliclib')
+    compile project(':movesAndroidAPI')
+    compile project(':yWeatherGetter4a')
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
@@ -43,8 +45,6 @@ dependencies {
     compile 'com.ogaclejapan.smarttablayout:library:1.6.0@aar'
     compile 'com.ogaclejapan.smarttablayout:utils-v4:1.6.0@aar'
     compile 'com.android.support:support-v4:23.1.1'
-    compile project(':movesAndroidAPI')
-    compile project(':yWeatherGetter4a')
     compile 'com.roomorama:caldroid:2.3.1'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'

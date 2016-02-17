@@ -20,6 +20,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
+import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
@@ -33,7 +34,7 @@ import io.flic.lib.FlicManagerInitializedCallback;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.OnHomeFragmentInteractionListener
-        , SymptomFragment.OnSymptomFragmentInteractionListener {
+        , SymptomFragment.OnSymptomFragmentInteractionListener,DiaryFragment.OnDiaryFragmentListener {
 
     private static final String TAG = "MainActivity";
     static MainActivity mainActivity = null;
@@ -83,6 +84,7 @@ public class MainActivity extends AppCompatActivity
         FragmentPagerItemAdapter adapter = new FragmentPagerItemAdapter(
                 getSupportFragmentManager(), FragmentPagerItems.with(this)
                 .add("Home", HomeFragment.class)
+                .add("Diary", DiaryFragment.class)
                 .add("Symptom", SymptomFragment.class)
                 .create());
 
@@ -237,6 +239,11 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onFragmentInteraction(Uri uri) {
+
+    }
+
+    @Override
+    public void onDiaryFragmentInteraction(Uri uri) {
 
     }
 }

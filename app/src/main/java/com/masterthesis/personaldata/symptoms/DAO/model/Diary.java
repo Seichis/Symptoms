@@ -20,35 +20,27 @@ public class Diary {
     public static final String SECOND_SYMPTOM_FIELD_NAME = "symptom2";
     public static final String THIRD_SYMPTOM_FIELD_NAME = "symptom3";
     public static final String DESCRIPTION_FIELD_NAME = "symptom3";
-
-
-    public int getId() {
-        return id;
-    }
-
     @DatabaseField(generatedId = true)
     private int id;
-
     @DatabaseField(columnName = NAME_FIELD_NAME, canBeNull = false)
     private String name;
-
     @DatabaseField(columnName = COLOR_FIELD_NAME)
     private String color;
-
     @ForeignCollectionField(columnName = FIRST_SYMPTOM_FIELD_NAME)
     private ForeignCollection<Symptom> symptom1;
-
     @ForeignCollectionField(columnName = SECOND_SYMPTOM_FIELD_NAME)
     private ForeignCollection<Symptom> symptom2;
-
     @ForeignCollectionField(columnName = THIRD_SYMPTOM_FIELD_NAME)
     private ForeignCollection<Symptom> symptom3;
-
     @DatabaseField(columnName = DESCRIPTION_FIELD_NAME)
     private String description;
 
     public Diary() {
         // all persisted classes must define a no-arg constructor with at least package visibility
+    }
+
+    public int getId() {
+        return id;
     }
 
     public void setId(int id) {

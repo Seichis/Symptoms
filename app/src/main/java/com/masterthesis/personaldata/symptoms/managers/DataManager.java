@@ -233,7 +233,7 @@ public class DataManager implements YahooWeatherInfoListener,
             symptomContext.setCity(weatherInfo.getLocationCity());
             symptomContext.setLatLng(new LatLng(Double.parseDouble(weatherInfo.getConditionLat()), Double.parseDouble(weatherInfo.getConditionLon())));
             symptomContext.setPostCode(weatherInfo.getAddress().getPostalCode());
-
+//            symptomContext.setPlaceType();
             symptomContext.notifyObservers(symptomContext);
 
         } else {

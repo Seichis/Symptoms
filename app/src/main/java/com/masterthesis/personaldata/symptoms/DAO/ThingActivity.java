@@ -44,7 +44,7 @@ public class ThingActivity extends OrmLiteBaseActivity<DatabaseHelper> {
             description = diary.getDescription();
         }
 
-        ((TextView) findViewById(R.id.thingId)).setText(String.valueOf(symptoms.get(0).getContext().getTemperature()));
+//        ((TextView) findViewById(R.id.thingId)).setText(String.valueOf(symptoms.get(0).getContext().getTemperature()));
         ((TextView) findViewById(R.id.thingDescription)).setText(description);
     }
 }

@@ -15,7 +15,7 @@ public class SymptomContext extends Observable {
     private String postCode;
     private LatLng latLng;
     private String country;
-    private String type;
+    private String placeType;
     private String city;
     // Weather variables
     private String temperature;
@@ -230,16 +230,16 @@ public class SymptomContext extends Observable {
      * @return Type of the place as inputted by the user at the moves app
      * or inferred from Foursquare ("Home")
      */
-    public String getType() {
-        return type;
+    public String getPlaceType() {
+        return placeType;
     }
 
     /**
      * @param type Type of the place as inputted by the user at the moves app
      *             or inferred from Foursquare ("Home")
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setPlaceType(String type) {
+        this.placeType= type;
     }
 
 

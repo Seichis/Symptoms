@@ -8,7 +8,9 @@ import android.util.Log;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,9 +39,10 @@ public class DiaryManager {
         editor = preferences.edit();
     }
 
-    public void create(String name, String description) {
+    public Diary createDiary(String name, String description) {
         Diary diary = new Diary();
-        diary.setDescription("My diary for pain");
+        diary.setName(name);
+        diary.setDescription(description);
         try {
             dbHelper.getDiaryDAO().create(diary);
         } catch (SQLException e) {
@@ -47,11 +50,11 @@ public class DiaryManager {
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
+        return diary;
     }
 
     public boolean createSymptomType(Diary diary, String symType) {
         Set<String> symTypes = null;
-        boolean isCreated = false;
         if (preferences.contains(diary.getName())) {
             symTypes = preferences.getStringSet(diary.getName(), null);
 
@@ -76,10 +79,13 @@ public class DiaryManager {
 
     }
 
-    public void deleteDiary(){
+    public void deleteDiary() {
 
     }
 
+    public List<Diary> getDiaries() throws java.sql.SQLException {
+        return dbHelper.getDiaryDAO().queryForAll();
+    }
 
 
     public Diary getActiveDiary() {
