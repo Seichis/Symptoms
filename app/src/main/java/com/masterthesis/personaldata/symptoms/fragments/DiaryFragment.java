@@ -1,5 +1,6 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
+import android.app.Application;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
@@ -45,22 +46,13 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    public static List<Diary> diaries = new ArrayList<>();
     ItemAdapter mItemAdapter;
     DiaryManager diaryManager;
     //    CoolDragAndDropGridView mCoolDragAndDropGridView;
     List<Item> mItems = new LinkedList<Item>();
-    List<Diary> diaries=new ArrayList<>();
     @Bind(R.id.create_diary_button)
     Button createDiaryButton;
-    @OnClick(R.id.create_diary_button) void createDiary(){
-
-        Diary diary=diaryManager.createDiary("Pain diary", "Monitor distress of pain");
-        diaries.add(diary);
-        for (Diary d :diaries){
-            mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted,3,d.getName(),d.getDescription()));
-        }
-        mItemAdapter.notifyDataSetChanged();
-    }
     @Bind(R.id.scrollView)
     ScrollView scrollView;
     @Bind(R.id.coolDragAndDropGridView)
@@ -69,7 +61,6 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
 //    private String mParam1;
 //    private String mParam2;
     private OnDiaryFragmentListener mListener;
-
     public DiaryFragment() {
         // Required empty public constructor
     }
@@ -90,6 +81,17 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         args.putString(ARG_PARAM2, param2);
         fragment.setArguments(args);
         return fragment;
+    }
+
+    @OnClick(R.id.create_diary_button)
+    void createDiary() {
+
+        Diary diary = diaryManager.createDiary("Pain diary", "Monitor distress of pain");
+        diaries.add(diary);
+        for (Diary d : diaries) {
+            mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
+        }
+        mItemAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -114,14 +116,16 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         diaryManager = DiaryManager.getInstance();
         diaryManager.init(getContext());
         try {
-            diaries=diaryManager.getDiaries();
-            for (Diary d :diaries){
-                mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted,3,d.getName(),d.getDescription()));
+            diaries = diaryManager.getDiaries();
+            if (!diaries.isEmpty()) {
+                for (Diary d : diaries) {
+                    mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
+                }
             }
 //            mItemAdapter.notifyDataSetChanged();
         } catch (SQLException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(),"Error fetching the diaries",Toast.LENGTH_LONG);
+            Toast.makeText(getContext(), "Error fetching the diaries", Toast.LENGTH_LONG);
         }
 //        mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, "Airport", "Heathrow"));
 //        mItems.add(new Item(R.drawable.ic_local_search_bar_highlighted, 3, "Bar", "Connaught Bar"));
