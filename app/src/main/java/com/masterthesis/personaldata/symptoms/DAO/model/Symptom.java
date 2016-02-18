@@ -11,7 +11,7 @@ import java.util.Date;
  * Created by Konstantinos Michail on 2/11/2016.
  */
 @DatabaseTable(tableName = "Symptom")
-public class Symptom { // extends Observable {
+public class Symptom {
 
     // for QueryBuilder to be able to find the fields
     public static final String SYMPTOM_TYPE_FIELD_NAME = "type";

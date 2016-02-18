@@ -33,7 +33,6 @@ public class SymptomManager implements Observer {
     DataManager dataManager = DataManager.getInstance();
     CountDownTimer countDownTimer;
     DatabaseHelper dbHelper;
-
     private boolean isCountDown;
 
     private SymptomManager() {
@@ -68,10 +67,12 @@ public class SymptomManager implements Observer {
                 public void onFinish() {
 //                    symptom.setTimestamp(timeStamp);
                     Gson gson=new Gson();
-                    String sContext=gson.toJson(dataManager.getSymptomContext(),SymptomContext.class);
+                    String sContext=gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
                     symptom.setContext(sContext);
                     symptom.setIntensity(Collections.max(symptomInputList));
-                    symptom.setDiary(DiaryManager.getInstance().getActiveDiary());
+                    Diary diary=DiaryManager.getInstance().getActiveDiary();
+                    symptom.setDiary(diary);
+
                     int symptomType = symptomInputList.size() - 1;
                     //TODO add the real symptom saved in shared preferences probably
                     symptom.setSymptomType(String.valueOf(symptomType));
@@ -93,6 +94,7 @@ public class SymptomManager implements Observer {
         }
     }
 
+
     private void resetSymptomInput() {
         symptomInputList.clear();
         Log.i(TAG, "List cleared");
@@ -103,6 +105,7 @@ public class SymptomManager implements Observer {
         resetSymptomInput();
         try {
             dbHelper.getSymptomDAO().create(symptom);
+//            dbHelper.getDiaryDAO().update(diary);
             Log.i(TAG,"Symptom saved to database");
         } catch (SQLException e) {
             throw new RuntimeException("Could not create a new Thing in the database", e);
@@ -143,6 +146,27 @@ public class SymptomManager implements Observer {
         }
     }
 
+    public List<Symptom> getAllSymptoms() throws java.sql.SQLException {
+
+        if (dbHelper.getSymptomDAO() != null) {
+            return dbHelper.getSymptomDAO().queryForAll();
+        } else {
+            return new ArrayList<>();
+        }
+    }
 
 
+//    public void belongsToDiary(Symptom symptomToDiary) {
+//        switch (Integer.parseInt(symptom.getSymptomType())){
+//            case 1:
+//                diary.getSymptom1().add(symptom);
+//                return;
+//            case 2:
+//                diary.getSymptom2().add(symptom);
+//                return;
+//            case 3:
+//                diary.getSymptom3().add(symptom);
+//                return;
+//        }
+//    }
 }

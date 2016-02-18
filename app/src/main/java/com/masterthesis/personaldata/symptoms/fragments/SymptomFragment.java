@@ -1,14 +1,20 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
 import android.content.Context;
+import android.database.SQLException;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.R;
+import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
+
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -21,13 +27,14 @@ import com.masterthesis.personaldata.symptoms.R;
 public class SymptomFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
+    private static final String TAG = "SymptomFragment";
+    List<Symptom> symptoms;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
     private OnSymptomFragmentInteractionListener mListener;
 
     public SymptomFragment() {
@@ -65,6 +72,33 @@ public class SymptomFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+
+        try {
+            symptoms = SymptomManager.getInstance().getAllSymptoms();
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Could not lookup Think in the database", e);
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+
+        String idString;
+        String description;
+        for (Symptom s : symptoms) {
+            Log.i(TAG,"context"+s.getContext());
+            Log.i(TAG,"symptom type"+s.getSymptomType());
+            Log.i(TAG,"diary id"+s.getDiary().getId());
+            Log.i(TAG,"diary name"+s.getDiary().getName());
+            Log.i(TAG,"diary description"+s.getDiary().getDescription());
+            Log.i(TAG,"symptom Id"+s.getId());
+            Log.i(TAG,"timestamp"+s.getTimestamp());
+            Log.i(TAG,"intensity"+s.getIntensity());
+//            Log.i(TAG,""+s.());
+//            Log.i(TAG,""+s.());
+
+        }
+
+
         return inflater.inflate(R.layout.fragment_symptom, container, false);
     }
 

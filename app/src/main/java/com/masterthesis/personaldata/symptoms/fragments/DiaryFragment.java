@@ -5,6 +5,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final String TAG = "DiaryFragment";
     public static List<Diary> diaries = new ArrayList<>();
     ItemAdapter mItemAdapter;
     DiaryManager diaryManager;
@@ -120,6 +122,11 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
             if (!diaries.isEmpty()) {
                 for (Diary d : diaries) {
                     mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
+                    Log.i(TAG,"name"+d.getName());
+                    Log.i(TAG,"description"+d.getDescription());
+                    Log.i(TAG,"symptom1"+d.getSymptom1().isEmpty());
+                    Log.i(TAG,"symptom2"+d.getSymptom2().isEmpty());
+                    Log.i(TAG,"symptom3"+d.getSymptom3().isEmpty());
                 }
             }
 //            mItemAdapter.notifyDataSetChanged();
