@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
+import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -84,12 +85,21 @@ public class DiaryManager {
     }
 
     public List<Diary> getDiaries() throws java.sql.SQLException {
-        return dbHelper.getDiaryDAO().queryForAll();
+
+        if (dbHelper.getDiaryDAO() != null) {
+            return dbHelper.getDiaryDAO().queryForAll();
+        } else {
+            return new ArrayList<>();
+        }
     }
 
 
     public Diary getActiveDiary() {
-        Diary mDiary = new Diary();
-        return mDiary;
+//        DiaryFragment.newInstance(new String("wow"),new String("2"))
+        if (!DiaryFragment.diaries.isEmpty()) {
+            Diary mDiary = DiaryFragment.diaries.get(0);
+            return mDiary;
+        }else{return null;}
     }
 }
+
