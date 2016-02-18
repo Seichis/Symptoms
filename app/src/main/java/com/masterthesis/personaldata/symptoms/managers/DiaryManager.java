@@ -51,34 +51,56 @@ public class DiaryManager {
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
+        Set<String> symTypes = new HashSet<>();
+
+        editor.putStringSet(String.valueOf(diary.getId()), symTypes);
+        boolean committed = editor.commit();
+        Log.i(TAG, "Set Created. " + committed + diary.getId());
+
         return diary;
     }
 
-    public boolean createSymptomType(Diary diary, String symType) {
-        Set<String> symTypes = null;
-        if (preferences.contains(diary.getName())) {
-            symTypes = preferences.getStringSet(diary.getName(), null);
+    public boolean addSymptomType(Diary diary, String symType) {
+        Set<String> symTypes;
+        String id=String.valueOf(diary.getId());
+        Log.i(TAG,"pref"+preferences.contains(id));
+        if (preferences.contains(id)) {
+            symTypes = preferences.getStringSet(id, null);
+            if (symTypes != null) {
+                if (symTypes.contains(symType) || symType.length() >= 3) {
+                    // TODO Show the user feedback that the symptom list is full for this diary:
 
-            if (symTypes.contains(symType) || symType.length() >= 3) {
-                //TODO Handle this better for the user
-                Log.i(TAG, "This Diary has no more room for more symptoms");
-                return false;
+                    Log.i(TAG, "This Diary has no more room for more symptoms");
+                    return false;
+                } else {
+                    symTypes.add(symType);
+                    editor.putStringSet(id, symTypes);
+                    boolean committed = editor.commit();
+                    Log.i(TAG, "Set existed.Symptom type added." + symTypes.size() + committed);
+                    return committed;
+                }
             } else {
-                symTypes.add(symType);
-                editor.putStringSet(diary.getName(), symTypes);
-                editor.commit();
-                return true;
+                //TODO Log error: no set was created for that diary error
+                Log.i(TAG, "Log error: no set was created for that diary error" );
+
+                return false;
             }
-
         } else {
-            symTypes = new HashSet<>();
-            symTypes.add(symType);
-            editor.putStringSet(diary.getName(), symTypes);
-            editor.commit();
-            return true;
-        }
+            //TODO Log error: no entry in the preferences for the diary
+            Log.i(TAG, "Log error: no entry in the preferences for the diary" );
 
+            return false;
+        }
     }
+//        } else {
+//            symTypes = new HashSet<>();
+//            symTypes.add(symType);
+//            editor.putStringSet(diary.getName(), symTypes);
+//            editor.commit();
+//            return true;
+//        }
+
+//    }
 
     public void deleteDiary() {
 
@@ -99,7 +121,10 @@ public class DiaryManager {
         if (!DiaryFragment.diaries.isEmpty()) {
             Diary mDiary = DiaryFragment.diaries.get(0);
             return mDiary;
-        }else{return null;}
+        } else {
+            return null;
+        }
     }
+
 }
 

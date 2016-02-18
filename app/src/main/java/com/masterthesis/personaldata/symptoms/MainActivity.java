@@ -23,6 +23,7 @@ import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
+import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
@@ -104,6 +105,8 @@ public class MainActivity extends AppCompatActivity
             Log.i(TAG, "Service running");
         }
 
+        DiaryManager diaryManager=DiaryManager.getInstance();
+        diaryManager.init(this);
 
     }
 

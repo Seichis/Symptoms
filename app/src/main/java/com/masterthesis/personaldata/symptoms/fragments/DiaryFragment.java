@@ -116,7 +116,6 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         View view = inflater.inflate(R.layout.fragment_diary, container, false);
         ButterKnife.bind(this, view);
         diaryManager = DiaryManager.getInstance();
-        diaryManager.init(getContext());
         try {
             diaries = diaryManager.getDiaries();
             if (!diaries.isEmpty()) {
@@ -124,9 +123,8 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
                     mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
                     Log.i(TAG,"name"+d.getName());
                     Log.i(TAG,"description"+d.getDescription());
-                    Log.i(TAG,"symptom1"+d.getSymptom1().isEmpty());
-                    Log.i(TAG,"symptom2"+d.getSymptom2().isEmpty());
-                    Log.i(TAG,"symptom3"+d.getSymptom3().isEmpty());
+                    Log.i(TAG,"symptoms"+d.getSymptoms().isEmpty());
+
                 }
             }
 //            mItemAdapter.notifyDataSetChanged();

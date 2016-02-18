@@ -3,18 +3,26 @@ package com.masterthesis.personaldata.symptoms.fragments;
 import android.content.Context;
 import android.database.SQLException;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.R;
+import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -32,6 +40,8 @@ public class SymptomFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "SymptomFragment";
     List<Symptom> symptoms;
+    @Bind(R.id.input_symptom_type)
+    EditText symptomEditText;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
@@ -59,6 +69,22 @@ public class SymptomFragment extends Fragment {
         return fragment;
     }
 
+    @OnClick(R.id.add_symptom_button)
+    void addSymptom() {
+        DiaryManager diaryManager = DiaryManager.getInstance();
+        if (symptomEditText.getText().toString().equals("")) {
+            Toast.makeText(getContext(), "Please add a symptom type", Toast.LENGTH_LONG).show();
+        } else {
+            //TODO catch no diary exception
+            if (diaryManager.addSymptomType(diaryManager.getActiveDiary(), symptomEditText.getText().toString())) {
+                Toast.makeText(getContext(), "Symptom created in the diary : " + diaryManager.getActiveDiary().getName(), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(getContext(), "Something went wrong while creating the symptom type in the diary " + diaryManager.getActiveDiary().getName(), Toast.LENGTH_LONG).show();
+
+            }
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,25 +107,24 @@ public class SymptomFragment extends Fragment {
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
-
-        String idString;
-        String description;
+        View view = inflater.inflate(R.layout.fragment_symptom, container, false);
+        ButterKnife.bind(this,view);
         for (Symptom s : symptoms) {
-            Log.i(TAG,"context"+s.getContext());
-            Log.i(TAG,"symptom type"+s.getSymptomType());
-            Log.i(TAG,"diary id"+s.getDiary().getId());
-            Log.i(TAG,"diary name"+s.getDiary().getName());
-            Log.i(TAG,"diary description"+s.getDiary().getDescription());
-            Log.i(TAG,"symptom Id"+s.getId());
-            Log.i(TAG,"timestamp"+s.getTimestamp());
-            Log.i(TAG,"intensity"+s.getIntensity());
+            Log.i(TAG, "context" + s.getContext());
+            Log.i(TAG, "symptom type" + s.getSymptomType());
+            Log.i(TAG, "diary id" + s.getDiary().getId());
+            Log.i(TAG, "diary name" + s.getDiary().getName());
+            Log.i(TAG, "diary description" + s.getDiary().getDescription());
+            Log.i(TAG, "symptom Id" + s.getId());
+            Log.i(TAG, "timestamp" + s.getTimestamp());
+            Log.i(TAG, "intensity" + s.getIntensity());
 //            Log.i(TAG,""+s.());
 //            Log.i(TAG,""+s.());
 
         }
 
 
-        return inflater.inflate(R.layout.fragment_symptom, container, false);
+        return view;
     }
 
     // TODO: Rename method, update argument and hook method into UI event

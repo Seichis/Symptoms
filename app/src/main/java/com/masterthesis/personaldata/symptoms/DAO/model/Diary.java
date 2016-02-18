@@ -16,10 +16,9 @@ public class Diary {
     // for QueryBuilder to be able to find the fields
     public static final String NAME_FIELD_NAME = "name";
     public static final String COLOR_FIELD_NAME = "color";
-    public static final String FIRST_SYMPTOM_FIELD_NAME = "symptom1";
-    public static final String SECOND_SYMPTOM_FIELD_NAME = "symptom2";
-    public static final String THIRD_SYMPTOM_FIELD_NAME = "symptom3";
-    public static final String DESCRIPTION_FIELD_NAME = "symptom3";
+    public static final String FIRST_SYMPTOM_FIELD_NAME = "symptoms";
+    public static final String DESCRIPTION_FIELD_NAME = "description";
+
     @DatabaseField(generatedId = true)
     private int id;
     @DatabaseField(columnName = NAME_FIELD_NAME, canBeNull = false)
@@ -27,11 +26,7 @@ public class Diary {
     @DatabaseField(columnName = COLOR_FIELD_NAME)
     private String color;
     @ForeignCollectionField(columnName = FIRST_SYMPTOM_FIELD_NAME)
-    private ForeignCollection<Symptom> symptom1;
-    @ForeignCollectionField(columnName = SECOND_SYMPTOM_FIELD_NAME)
-    private ForeignCollection<Symptom> symptom2;
-    @ForeignCollectionField(columnName = THIRD_SYMPTOM_FIELD_NAME)
-    private ForeignCollection<Symptom> symptom3;
+    private ForeignCollection<Symptom> symptoms;
     @DatabaseField(columnName = DESCRIPTION_FIELD_NAME)
     private String description;
 
@@ -63,28 +58,12 @@ public class Diary {
         this.color = color;
     }
 
-    public ForeignCollection<Symptom> getSymptom1() {
-        return symptom1;
+    public ForeignCollection<Symptom> getSymptoms() {
+        return symptoms;
     }
 
-    public void setSymptom1(ForeignCollection<Symptom> symptom1) {
-        this.symptom1 = symptom1;
-    }
-
-    public ForeignCollection<Symptom> getSymptom2() {
-        return symptom2;
-    }
-
-    public void setSymptom2(ForeignCollection<Symptom> symptom2) {
-        this.symptom2 = symptom2;
-    }
-
-    public ForeignCollection<Symptom> getSymptom3() {
-        return symptom3;
-    }
-
-    public void setSymptom3(ForeignCollection<Symptom> symptom3) {
-        this.symptom3 = symptom3;
+    public void setSymptoms(ForeignCollection<Symptom> symptoms) {
+        this.symptoms = symptoms;
     }
 
     public String getDescription() {
