@@ -1,7 +1,8 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
-import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -25,6 +27,7 @@ import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -49,20 +52,27 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "DiaryFragment";
     public static List<Diary> diaries = new ArrayList<>();
+    private static SharedPreferences preferences;
+    private static SharedPreferences.Editor editor;
     ItemAdapter mItemAdapter;
     DiaryManager diaryManager;
     //    CoolDragAndDropGridView mCoolDragAndDropGridView;
-    List<Item> mItems = new LinkedList<Item>();
+    List<Item> mItems = new LinkedList<>();
     @Bind(R.id.create_diary_button)
     Button createDiaryButton;
     @Bind(R.id.scrollView)
     ScrollView scrollView;
     @Bind(R.id.coolDragAndDropGridView)
     CoolDragAndDropGridView mCoolDragAndDropGridView;
+
+    @Bind(R.id.input_diary_name)
+    EditText inputDiaryNameEditText;
+
     // TODO: Rename and change types of parameters
 //    private String mParam1;
 //    private String mParam2;
     private OnDiaryFragmentListener mListener;
+
     public DiaryFragment() {
         // Required empty public constructor
     }
@@ -87,13 +97,35 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
 
     @OnClick(R.id.create_diary_button)
     void createDiary() {
+        List<Diary> sameNameDiaries = null;
+        String input=inputDiaryNameEditText.getText().toString();
+        try {
+            sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error searching the database for diary with the same name", Toast.LENGTH_LONG).show();
 
-        Diary diary = diaryManager.createDiary("Pain diary", "Monitor distress of pain");
-        diaries.add(diary);
-        for (Diary d : diaries) {
-            mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
         }
-        mItemAdapter.notifyDataSetChanged();
+        Log.i(TAG, "same name diaries " + sameNameDiaries);
+        // If the input field is not empty continue
+        if (input.isEmpty()) {
+            Toast.makeText(getContext(), "Please add a name for the diary you want to create", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Check if there is another diary with the same name.
+        // If there is not create a new diary and update the list
+
+        if (sameNameDiaries != null && !sameNameDiaries.isEmpty()) {
+            Toast.makeText(getContext(), "A diary with the same name exists. Choose another name", Toast.LENGTH_LONG).show();
+        } else {
+            Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
+            diaries.add(diary);
+
+            mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
+            mItemAdapter.notifyDataSetChanged();
+        }
+
     }
 
     @Override
@@ -116,25 +148,23 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         View view = inflater.inflate(R.layout.fragment_diary, container, false);
         ButterKnife.bind(this, view);
         diaryManager = DiaryManager.getInstance();
+        preferences = getContext().getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
+
         try {
             diaries = diaryManager.getDiaries();
             if (!diaries.isEmpty()) {
                 for (Diary d : diaries) {
                     mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
-                    Log.i(TAG,"name"+d.getName());
-                    Log.i(TAG,"description"+d.getDescription());
-                    Log.i(TAG,"symptoms"+d.getSymptoms().isEmpty());
+                    Log.i(TAG, "name" + d.getName());
+                    Log.i(TAG, "description" + d.getDescription());
+                    Log.i(TAG, "symptoms" + d.getSymptoms().isEmpty());
 
                 }
             }
-//            mItemAdapter.notifyDataSetChanged();
         } catch (SQLException e) {
             e.printStackTrace();
-            Toast.makeText(getContext(), "Error fetching the diaries", Toast.LENGTH_LONG);
+            Toast.makeText(getContext(), "Error fetching the diaries", Toast.LENGTH_LONG).show();
         }
-//        mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, "Airport", "Heathrow"));
-//        mItems.add(new Item(R.drawable.ic_local_search_bar_highlighted, 3, "Bar", "Connaught Bar"));
-
 
         mItemAdapter = new ItemAdapter(getContext(), mItems);
         mCoolDragAndDropGridView.setAdapter(mItemAdapter);
@@ -197,11 +227,14 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @Override
     public void onDropItem(int from, int to) {
         if (from != to) {
-
+            Log.i(TAG,"on drop from "+from+" to "+to);
             mItems.add(to, mItems.remove(from));
             mItemAdapter.notifyDataSetChanged();
         }
-
+        if (to==0){
+            Log.i(TAG,"on drop from "+diaries.get(from).getName()+" to "+diaries.get(to).getName());
+            Collections.swap(diaries,to,from);
+        }
     }
 
     @Override

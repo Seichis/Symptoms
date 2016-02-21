@@ -15,12 +15,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+
 public class DiaryManager {
     private static final String TAG = "DiaryManager";
     private static DiaryManager diaryManager = new DiaryManager();
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
     private DatabaseHelper dbHelper;
+
 //    private Context context;
 
     private DiaryManager() {
@@ -66,7 +68,7 @@ public class DiaryManager {
         if (preferences.contains(id)) {
             symTypes = preferences.getStringSet(id, null);
             if (symTypes != null) {
-                if (symTypes.contains(symType) || symType.length() >= 3) {
+                if (symTypes.contains(symType) || symTypes.size() >= 3) {
                     // TODO Show the user feedback that the symptom list is full for this diary:
 
                     Log.i(TAG, "This Diary has no more room for more symptoms");
@@ -107,6 +109,9 @@ public class DiaryManager {
         }
     }
 
+    public List<Diary> searchByName(String name) throws java.sql.SQLException {
+        return dbHelper.getDiaryDAO().queryForEq(Diary.NAME_FIELD_NAME,name);
+    }
 
     public Diary getActiveDiary() {
 //        DiaryFragment.newInstance(new String("wow"),new String("2"))

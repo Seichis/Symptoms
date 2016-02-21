@@ -1,6 +1,8 @@
 package com.masterthesis.personaldata.symptoms;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,6 +30,8 @@ import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
 
+import java.util.Map;
+
 import io.flic.lib.FlicBroadcastReceiverFlags;
 import io.flic.lib.FlicButton;
 import io.flic.lib.FlicManager;
@@ -35,10 +39,12 @@ import io.flic.lib.FlicManagerInitializedCallback;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.OnHomeFragmentInteractionListener
-        , SymptomFragment.OnSymptomFragmentInteractionListener,DiaryFragment.OnDiaryFragmentListener {
+        , SymptomFragment.OnSymptomFragmentInteractionListener, DiaryFragment.OnDiaryFragmentListener {
 
     private static final String TAG = "MainActivity";
     static MainActivity mainActivity = null;
+    private static SharedPreferences preferences;
+    private static SharedPreferences.Editor editor;
     Intent serviceIntent;
     FlicButton button;
 
@@ -57,9 +63,9 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         mainActivity = this;
 
-        if (getIntent().getExtras()!=null){
-            Bundle extras=getIntent().getExtras();
-            checkRule(extras.getInt("rule",-1));
+        if (getIntent().getExtras() != null) {
+            Bundle extras = getIntent().getExtras();
+            checkRule(extras.getInt("rule", -1));
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -105,24 +111,33 @@ public class MainActivity extends AppCompatActivity
             Log.i(TAG, "Service running");
         }
 
-        DiaryManager diaryManager=DiaryManager.getInstance();
+        DiaryManager diaryManager = DiaryManager.getInstance();
         diaryManager.init(this);
+
+        preferences = getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
+//        editor=preferences.edit();
+//        preferences.edit().remove("Pain diary").apply();
+        Map<String, ?> allEntries = preferences.getAll();
+        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
+            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
+        }
+//        preferences.edit().clear().apply();
 
     }
 
     private void checkRule(int rule) {
-        switch (rule){
+        switch (rule) {
             case Constants.BUTTON_NOT_TRACKING:
                 //TODO throw an alarm show that the user gets back his button
-                Log.i(TAG,"Button out of sync or range maybe you lost it");
+                Log.i(TAG, "Button out of sync or range maybe you lost it");
                 break;
             case Constants.UNKNOWN_ERROR:
                 //TODO Tell the user to contact me and give me details of the error or I will log them and get them somehow
-                Log.i(TAG,"Rules : Invalid rule");
+                Log.i(TAG, "Rules : Invalid rule");
                 break;
             case Constants.NEED_RESET:
                 //TODO Restart everything and alarm the user to connect the button if needed
-                Log.i(TAG,"Rules : Invalid rule");
+                Log.i(TAG, "Rules : Invalid rule");
                 break;
             case Constants.SERVICE_CRASHED:
                 //TODO Restart the service
@@ -130,7 +145,7 @@ public class MainActivity extends AppCompatActivity
                 Log.i(TAG, "Rules : Invalid rule");
                 break;
             default:
-                Log.i(TAG,"Rules : Invalid rule");
+                Log.i(TAG, "Rules : Invalid rule");
                 break;
         }
     }

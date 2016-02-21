@@ -8,8 +8,6 @@ import butterknife.ButterKnife;
 
 public class MyApplication extends Application {
 
-    private static SharedPreferences preferences;
-    private static SharedPreferences.Editor editor;
     // Debugging switch
     public static final boolean APPDEBUG = false;
 
@@ -22,9 +20,6 @@ public class MyApplication extends Application {
         super.onCreate();
 
         ButterKnife.setDebug(BuildConfig.DEBUG);
-
-        preferences = getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-        editor=preferences.edit();
 
     }
 
