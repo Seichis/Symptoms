@@ -9,21 +9,19 @@ import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Created by Konstantinos Michail on 2/17/2016.
- */
 public class DiaryManager {
     private static final String TAG = "DiaryManager";
     private static DiaryManager diaryManager = new DiaryManager();
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
     private DatabaseHelper dbHelper;
-    private Context context;
+//    private Context context;
 
     private DiaryManager() {
 
@@ -33,15 +31,14 @@ public class DiaryManager {
         return diaryManager;
     }
 
-    public void init(Context _context) {
-        context = _context;
+    public void init(Context context) {
+//        context = context;
         dbHelper = new DatabaseHelper(context);
         preferences = context.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-        editor = preferences.edit();
     }
 
     public Diary createDiary(String name, String description) {
-        Diary diary = new Diary();
+        Diary diary = new Diary(new Timestamp(System.currentTimeMillis()));
         diary.setName(name);
         diary.setDescription(description);
         try {
@@ -53,8 +50,10 @@ public class DiaryManager {
         }
         Set<String> symTypes = new HashSet<>();
 
+        editor = preferences.edit();
         editor.putStringSet(String.valueOf(diary.getId()), symTypes);
         boolean committed = editor.commit();
+
         Log.i(TAG, "Set Created. " + committed + diary.getId());
 
         return diary;
@@ -62,8 +61,8 @@ public class DiaryManager {
 
     public boolean addSymptomType(Diary diary, String symType) {
         Set<String> symTypes;
-        String id=String.valueOf(diary.getId());
-        Log.i(TAG,"pref"+preferences.contains(id));
+        String id = String.valueOf(diary.getId());
+        Log.i(TAG, "pref" + preferences.contains(id));
         if (preferences.contains(id)) {
             symTypes = preferences.getStringSet(id, null);
             if (symTypes != null) {
@@ -74,6 +73,7 @@ public class DiaryManager {
                     return false;
                 } else {
                     symTypes.add(symType);
+                    editor = preferences.edit();
                     editor.putStringSet(id, symTypes);
                     boolean committed = editor.commit();
                     Log.i(TAG, "Set existed.Symptom type added." + symTypes.size() + committed);
@@ -81,26 +81,18 @@ public class DiaryManager {
                 }
             } else {
                 //TODO Log error: no set was created for that diary error
-                Log.i(TAG, "Log error: no set was created for that diary error" );
+                Log.i(TAG, "Log error: no set was created for that diary error");
 
                 return false;
             }
         } else {
             //TODO Log error: no entry in the preferences for the diary
-            Log.i(TAG, "Log error: no entry in the preferences for the diary" );
+            Log.i(TAG, "Log error: no entry in the preferences for the diary");
 
             return false;
         }
     }
-//        } else {
-//            symTypes = new HashSet<>();
-//            symTypes.add(symType);
-//            editor.putStringSet(diary.getName(), symTypes);
-//            editor.commit();
-//            return true;
-//        }
 
-//    }
 
     public void deleteDiary() {
 

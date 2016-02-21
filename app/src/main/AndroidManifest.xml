@@ -39,7 +39,7 @@
         </activity>
 
         <receiver
-            android:name=".CustomFlicBroadcastReceiver"
+            android:name=".broadcastreceivers.CustomFlicBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
@@ -50,7 +50,7 @@
         <receiver
             android:name=".broadcastreceivers.AlarmBReceiver"
             android:enabled="true"
-            android:exported="true"/>
+            android:exported="true" />
 
         <receiver
             android:name=".broadcastreceivers.BootBReceiver"
@@ -60,6 +60,7 @@
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
 
@@ -94,7 +95,6 @@
             android:name=".CaldroidActivity"
             android:label="@string/title_activity_caldroid"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".DAO.ThingActivity"/>
     </application>
 
 </manifest>

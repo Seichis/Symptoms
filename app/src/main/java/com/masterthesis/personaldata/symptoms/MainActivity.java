@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity
         SmartTabLayout viewPagerTab = (SmartTabLayout) findViewById(R.id.viewpagertab);
         viewPagerTab.setViewPager(viewPager);
 
-//        startActivity(new Intent(this, CaldroidActivity.class));
+        startActivity(new Intent(this, MovesActivity.class));
 
 
         serviceIntent = new Intent(this, BackgroundService.class);
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity
             public void onInitialized(FlicManager manager) {
                 button = manager.completeGrabButton(requestCode, resultCode, data);
                 if (button != null) {
-                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
+                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.ALL);
 //                    button.setActiveMode(false);
                     Toast.makeText(MainActivity.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "button id" + button.getButtonId());

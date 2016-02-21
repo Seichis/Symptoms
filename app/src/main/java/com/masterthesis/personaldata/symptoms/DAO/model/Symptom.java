@@ -4,60 +4,70 @@ import com.google.gson.Gson;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
-import java.io.Serializable;
-import java.util.Date;
+import java.sql.Timestamp;
 
 /**
  * Created by Konstantinos Michail on 2/11/2016.
  */
 @DatabaseTable(tableName = "Symptom")
-public class Symptom {
+public class Symptom extends BaseDAO {
 
     // for QueryBuilder to be able to find the fields
     public static final String SYMPTOM_TYPE_FIELD_NAME = "type";
-    public static final String TIMESTAMP_FIELD_NAME = "timestamp";
     public static final String SYMPTOM_CONTEXT_FIELD_NAME = "context";
     public static final String INTENSITY_FIELD_NAME = "intensity";
     public static final String DIARY_ID_FIELD_NAME = "diary_id";
 
+    public Symptom(){
+    }
+
+    public Symptom(Timestamp createdAt){
+        super(createdAt);
+    }
 
     @DatabaseField(columnName = SYMPTOM_TYPE_FIELD_NAME, canBeNull = false)
     String symptomType;
-    @DatabaseField(columnName = TIMESTAMP_FIELD_NAME, canBeNull = false)
-    Date timestamp;
     @DatabaseField(columnName = SYMPTOM_CONTEXT_FIELD_NAME, canBeNull = false)
     String context = null;
     @DatabaseField(columnName = INTENSITY_FIELD_NAME, canBeNull = false)
     double intensity;
-    @DatabaseField(generatedId = true)
-    private int id;
+
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME)
     private Diary diary;
-
-    public Symptom() {
-    }
-
-    public Symptom(Diary _diary, String _symptomType, Date _timestamp) {
-        this.diary = _diary;
-        this.symptomType = _symptomType;
-        this.timestamp = _timestamp;
-    }
-
-    public Symptom(Date _timestamp) {
-        this.timestamp = _timestamp;
-    }
 
     public Symptom(String _symptomType) {
         this.symptomType = _symptomType;
     }
 
-    public int getId() {
+    @Override
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    @Override
+    public void setId(Integer id) {
         this.id = id;
     }
+
+//    @Override
+//    public Timestamp getUpdatedAt() {
+//        return updatedAt;
+//    }
+//
+//    @Override
+//    public void setUpdatedAt(Timestamp updatedAt) {
+//
+//    }
+//
+//    @Override
+//    public Timestamp getCreatedAt() {
+//        return createdAt;
+//    }
+//
+//    @Override
+//    public void setCreatedAt(Timestamp createdAt) {
+//
+//    }
 
     public Diary getDiary() {
 
@@ -84,13 +94,6 @@ public class Symptom {
         this.symptomType = symptomType;
     }
 
-    public Date getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(Date timestamp) {
-        this.timestamp = timestamp;
-    }
 
     public String getContext() {
         return context;
@@ -99,9 +102,10 @@ public class Symptom {
     public void setContext(String context) {
         this.context = context;
     }
+
     public void setContext(SymptomContext context) {
-        Gson gson=new Gson();
-        String sContext=gson.toJson(context,SymptomContext.class);
+        Gson gson = new Gson();
+        String sContext = gson.toJson(context, SymptomContext.class);
         this.context = sContext;
     }
 

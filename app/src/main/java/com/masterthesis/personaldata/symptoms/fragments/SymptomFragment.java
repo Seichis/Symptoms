@@ -3,7 +3,6 @@ package com.masterthesis.personaldata.symptoms.fragments;
 import android.content.Context;
 import android.database.SQLException;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -106,22 +105,25 @@ public class SymptomFragment extends Fragment {
             throw new RuntimeException("Could not lookup Think in the database", e);
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
-        }
-        View view = inflater.inflate(R.layout.fragment_symptom, container, false);
-        ButterKnife.bind(this,view);
-        for (Symptom s : symptoms) {
-            Log.i(TAG, "context" + s.getContext());
-            Log.i(TAG, "symptom type" + s.getSymptomType());
-            Log.i(TAG, "diary id" + s.getDiary().getId());
-            Log.i(TAG, "diary name" + s.getDiary().getName());
-            Log.i(TAG, "diary description" + s.getDiary().getDescription());
-            Log.i(TAG, "symptom Id" + s.getId());
-            Log.i(TAG, "timestamp" + s.getTimestamp());
-            Log.i(TAG, "intensity" + s.getIntensity());
+        } finally {
+            for (Symptom s : symptoms) {
+                Log.i(TAG, "context" + s.getContext());
+                Log.i(TAG, "symptom type" + s.getSymptomType());
+                Log.i(TAG, "diary id" + s.getDiary().getId());
+                Log.i(TAG, "diary name" + s.getDiary().getName());
+                Log.i(TAG, "diary description" + s.getDiary().getDescription());
+                Log.i(TAG, "symptom Id" + s.getId());
+                Log.i(TAG, "timestamp" + s.getCreatedAt());
+                Log.i(TAG, "timestamp" + s.getUpdatedAt());
+                Log.i(TAG, "intensity" + s.getIntensity());
 //            Log.i(TAG,""+s.());
 //            Log.i(TAG,""+s.());
 
+            }
+
         }
+        View view = inflater.inflate(R.layout.fragment_symptom, container, false);
+        ButterKnife.bind(this, view);
 
 
         return view;

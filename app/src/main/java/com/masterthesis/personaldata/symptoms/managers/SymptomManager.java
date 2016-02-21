@@ -3,9 +3,7 @@ package com.masterthesis.personaldata.symptoms.managers;
 import android.content.Context;
 import android.database.SQLException;
 import android.os.CountDownTimer;
-import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
@@ -13,10 +11,12 @@ import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -27,8 +27,11 @@ public class SymptomManager implements Observer {
     static List<Double> symptomInputList = new ArrayList<>();
     static SymptomManager symptomManager = new SymptomManager();
     static String TAG = "SymptomManager";
-    Context context;
+    boolean isWeatherException = false; //Check if an exception was caught while getting the weather
+
+//    Context context;
 //    Date timeStamp = null;
+
     Symptom symptom;
     DataManager dataManager = DataManager.getInstance();
     CountDownTimer countDownTimer;
@@ -43,34 +46,43 @@ public class SymptomManager implements Observer {
         return symptomManager;
     }
 
-    public void init(Context _context) {
-        context = _context;
+    public void init(Context context) {
+//        context = _context;
         dataManager.init(context);
-        dbHelper=new DatabaseHelper(context);
+        dbHelper = new DatabaseHelper(context);
     }
 
-    public void manageSymptomInput(double input) {
+    public void manageSymptomInput(final Context context, double input) {
 //        final Symptom symptom = new Symptom();
-
         if (symptomInputList.size() == 0) {
 //            timeStamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.UK).format(new Date());
-            symptom = new Symptom(new Date());
+            symptom = new Symptom(new Timestamp(System.currentTimeMillis()));
             // A symptom occured. get the weather data and start a timer for ending the registration of a symptom
-            dataManager.fetchWeatherData();
+            dataManager.fetchWeatherData(context);
             isCountDown = true;
+
+            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.UK);
+
+
+//            dataManager.movesStorylineDay(format.format(new Date()),true);
+
+
             countDownTimer = new CountDownTimer(15000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
+                    // If an exception is caught and it is not a network exception try to get weather again
+                    if (isWeatherException) {
+                        dataManager.fetchWeatherData(context);
+                    }
                     Log.i(TAG, "seconds remaining: " + millisUntilFinished / 1000);
                 }
 
                 public void onFinish() {
-//                    symptom.setTimestamp(timeStamp);
-                    Gson gson=new Gson();
-                    String sContext=gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
+                    Gson gson = new Gson();
+                    String sContext = gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
                     symptom.setContext(sContext);
                     symptom.setIntensity(Collections.max(symptomInputList));
-                    Diary diary=DiaryManager.getInstance().getActiveDiary();
+                    Diary diary = DiaryManager.getInstance().getActiveDiary();
                     symptom.setDiary(diary);
 
                     int symptomType = symptomInputList.size() - 1;
@@ -106,7 +118,7 @@ public class SymptomManager implements Observer {
         try {
             dbHelper.getSymptomDAO().create(symptom);
 //            dbHelper.getDiaryDAO().update(diary);
-            Log.i(TAG,"Symptom saved to database");
+            Log.i(TAG, "Symptom saved to database");
         } catch (SQLException e) {
             throw new RuntimeException("Could not create a new Thing in the database", e);
         } catch (java.sql.SQLException e) {
@@ -138,11 +150,11 @@ public class SymptomManager implements Observer {
                 // No network available do not retry to get info
 
             } else {
-                dataManager.fetchWeatherData();
+                isWeatherException = true;
             }
 
         } else if (data.toString().equals("Error")) {
-            Toast.makeText(context, "Unknown error occured. Contact the administrator", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "Unknown error occured. Contact the administrator");
         }
     }
 

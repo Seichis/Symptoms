@@ -5,12 +5,14 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.widget.Toast;
 
 import com.j256.ormlite.android.apptools.OrmLiteBaseService;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.broadcastreceivers.AlarmBReceiver;
+import com.masterthesis.personaldata.symptoms.broadcastreceivers.CustomFlicBroadcastReceiver;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import io.flic.lib.FlicAppNotInstalledException;
@@ -24,6 +26,8 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     static Notification notification;
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
+    SharedPreferences preferences;
+    SharedPreferences.Editor editor;
     MainActivity mainActivity = null;
 
     AlarmBReceiver alarmBReceiver=null;
@@ -45,9 +49,11 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
 //        super.onStartCommand(intent, flags, startId);
         CustomFlicBroadcastReceiver customFlicBroadcastReceiver=new CustomFlicBroadcastReceiver();
         mainActivity=MainActivity.getInstance();
+
+        preferences = this.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
+        editor = preferences.edit();
         backgroundService = this;
         runAsForeground();
-
         FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
         if (mainActivity!=null) {
             if (mainActivity.getButton() == null) {

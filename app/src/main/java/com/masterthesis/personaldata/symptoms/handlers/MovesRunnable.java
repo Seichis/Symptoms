@@ -4,12 +4,9 @@ package com.masterthesis.personaldata.symptoms.handlers;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.database.SQLException;
 
 import com.masterthesis.personaldata.symptoms.BackgroundService;
-import com.masterthesis.personaldata.symptoms.DAO.ThingActivity;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
-import com.masterthesis.personaldata.symptoms.DAO.model.Thing;
 import com.masterthesis.personaldata.symptoms.MainActivity;
 
 import java.util.Random;

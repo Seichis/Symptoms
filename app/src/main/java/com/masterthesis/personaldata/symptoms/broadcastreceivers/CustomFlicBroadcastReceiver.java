@@ -1,9 +1,13 @@
-package com.masterthesis.personaldata.symptoms;
+package com.masterthesis.personaldata.symptoms.broadcastreceivers;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.Log;
 
+import com.masterthesis.personaldata.symptoms.BackgroundService;
+import com.masterthesis.personaldata.symptoms.MainActivity;
+import com.masterthesis.personaldata.symptoms.Utils;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import io.flic.lib.FlicBroadcastReceiver;
@@ -16,8 +20,9 @@ import io.flic.lib.FlicManager;
 public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
     static long tStart;
     static long tEnd;
+
     //    static long measureEndTime=10000;
-    static String TAG = "FlicBroadcastReceiver";
+    static String TAG = "CustomFlicBroadcastReceiver";
 
 
     @Override
@@ -27,6 +32,21 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
 
     }
 
+
+    @Override
+    public void onButtonClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isClick, boolean isHold) {
+        super.onButtonClickOrHold(context, button, wasQueued, timeDiff, isClick, isHold);
+    }
+
+    @Override
+    public void onButtonSingleOrDoubleClick(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick) {
+        super.onButtonSingleOrDoubleClick(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick);
+    }
+
+    @Override
+    public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
+        super.onButtonSingleOrDoubleClickOrHold(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick, isHold);
+    }
 
     @Override
     public void onButtonUpOrDown(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
@@ -53,7 +73,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
                 tDelta = tEnd - tStart;
                 elapsedSeconds = tDelta;
                 SymptomManager symptomManager = SymptomManager.getInstance();
-                symptomManager.manageSymptomInput(elapsedSeconds);
+                symptomManager.manageSymptomInput(context,elapsedSeconds);
                 Log.i(TAG, "  " + tStart);
                 Log.i(TAG, "  " + tEnd);
             }

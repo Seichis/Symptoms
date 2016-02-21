@@ -41,7 +41,7 @@ public class DataManager implements YahooWeatherInfoListener,
     private static final String TAG = "DataManager";
     private static DataManager dataManager = new DataManager();
     SymptomContext symptomContext;
-    private Context context;
+//    private Context context;
     private YahooWeather mYahooWeather;
     private MovesHandler<AuthData> authDialogHandler = new MovesHandler<AuthData>() {
         @Override
@@ -175,11 +175,12 @@ public class DataManager implements YahooWeatherInfoListener,
         return dataManager;
     }
 
-    public void init(Context _context) {
-        context = _context;
+    public void init(Context context) {
+//        context = context;
+        initializeMoves(context);
     }
 
-    public void initializeMoves() {
+    private void initializeMoves(Context context) {
         try {
             MovesAPI.init(context, CLIENT_ID, CLIENT_SECRET, CLIENT_SCOPES, CLIENT_REDIRECTURL);
         } catch (Exception e) {
@@ -187,30 +188,27 @@ public class DataManager implements YahooWeatherInfoListener,
         }
     }
 
-    public void fetchWeatherData() {
+    public void fetchWeatherData(Context context) {
 
         mYahooWeather = YahooWeather.getInstance(10000, 10000, true);
         mYahooWeather.setExceptionListener(dataManager);
         mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
-        searchByGPS();
+        searchByGPS(context);
     }
 
     @Override
     public void onFailConnection(final Exception e) {
         symptomContext.notifyObservers(e);
-        Toast.makeText(context, "Fail Connection", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFailParsing(final Exception e) {
         symptomContext.notifyObservers(e);
-        Toast.makeText(context, "Fail Parsing", Toast.LENGTH_SHORT).show();
     }
 
     @Override
     public void onFailFindLocation(final Exception e) {
         symptomContext.notifyObservers(e);
-        Toast.makeText(context, "Fail Find Location", Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -245,7 +243,8 @@ public class DataManager implements YahooWeatherInfoListener,
     public SymptomContext getSymptomContext(){
         return symptomContext;
     }
-    private void searchByGPS() {
+
+    private void searchByGPS(Context context) {
         mYahooWeather.setNeedDownloadIcons(true);
         mYahooWeather.setUnit(YahooWeather.UNIT.CELSIUS);
         mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);

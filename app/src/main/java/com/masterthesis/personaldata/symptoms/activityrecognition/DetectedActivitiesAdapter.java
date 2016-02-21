@@ -80,7 +80,7 @@ public class DetectedActivitiesAdapter extends ArrayAdapter<DetectedActivity> {
         // of a DetectedActivity, we use a temporary list of DetectedActivity objects. If an
         // activity was freshly detected, we use its confidence level. Otherwise, we set the
         // confidence level to zero.
-        ArrayList<DetectedActivity> tempList = new ArrayList<DetectedActivity>();
+        ArrayList<DetectedActivity> tempList = new ArrayList<>();
         for (int i = 0; i < Constants.MONITORED_ACTIVITIES.length; i++) {
             int confidence = detectedActivitiesMap.containsKey(Constants.MONITORED_ACTIVITIES[i]) ?
                     detectedActivitiesMap.get(Constants.MONITORED_ACTIVITIES[i]) : 0;
