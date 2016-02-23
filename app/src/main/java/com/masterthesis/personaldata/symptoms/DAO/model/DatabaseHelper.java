@@ -16,7 +16,7 @@ import com.j256.ormlite.table.TableUtils;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME = "symptoms_first.db";
-    private static final int DATABASE_VERSION = 20;
+    private static final int DATABASE_VERSION = 21;
     private final String LOG_NAME = getClass().getName();
     private Dao<Diary, Integer> diaryDAO;
     private Dao<Symptom, Integer> symptomDAO;

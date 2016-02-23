@@ -1,18 +1,42 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:dragAndDrop="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.masterthesis.personaldata.symptoms.fragments.SymptomFragment">
 
-    <Button
+    <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/add_symptom_button"
-        android:text="Add new symptom"/>
-    <EditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/input_symptom_type"
-        android:layout_below="@+id/add_symptom_button"
-        android:hint="Pain"/>
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView
+                android:id="@+id/coolDragAndDropGridViewSymptom"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                dragAndDrop:itemMargin="5dp"
+                dragAndDrop:numColumns="@integer/col_count" />
+
+            <Button
+                android:id="@+id/add_symptom_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Add new symptom" />
+
+            <EditText
+                android:id="@+id/input_symptom_type"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/add_symptom_button"
+                android:hint="Pain" />
+        </LinearLayout>
+
+    </ScrollView>
+
+
 </RelativeLayout>

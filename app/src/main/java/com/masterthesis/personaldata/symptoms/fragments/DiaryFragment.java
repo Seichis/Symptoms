@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.R;
 import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
+import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItem;
 import com.masterthesis.personaldata.symptoms.dragNdrop.Item;
 import com.masterthesis.personaldata.symptoms.dragNdrop.ItemAdapter;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
@@ -62,7 +63,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     Button createDiaryButton;
     @Bind(R.id.scrollView)
     ScrollView scrollView;
-    @Bind(R.id.coolDragAndDropGridView)
+    @Bind(R.id.coolDragAndDropGridViewDiary)
     CoolDragAndDropGridView mCoolDragAndDropGridView;
 
     @Bind(R.id.input_diary_name)
@@ -122,7 +123,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
             Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
             diaries.add(diary);
 
-            mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
+            mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
             mItemAdapter.notifyDataSetChanged();
         }
 
@@ -131,6 +132,25 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        diaryManager = DiaryManager.getInstance();
+        preferences = getContext().getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
+
+        try {
+            diaries = diaryManager.getDiaries();
+            if (!diaries.isEmpty()) {
+                for (Diary d : diaries) {
+                    mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
+                    Log.i(TAG, "name" + d.getName());
+                    Log.i(TAG, "description" + d.getDescription());
+                    Log.i(TAG, "symptoms" + d.getSymptoms().isEmpty());
+
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error fetching the diaries", Toast.LENGTH_LONG).show();
+        }
 
 //        if (getArguments() != null) {
 //            mParam1 = getArguments().getString(ARG_PARAM1);
@@ -143,28 +163,8 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-//        scrollView = (ScrollView) findViewById(R.id.scrollView);
-//        mCoolDragAndDropGridView = (CoolDragAndDropGridView) findViewById(R.id.coolDragAndDropGridView);
         View view = inflater.inflate(R.layout.fragment_diary, container, false);
         ButterKnife.bind(this, view);
-        diaryManager = DiaryManager.getInstance();
-        preferences = getContext().getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-
-        try {
-            diaries = diaryManager.getDiaries();
-            if (!diaries.isEmpty()) {
-                for (Diary d : diaries) {
-                    mItems.add(new Item(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
-                    Log.i(TAG, "name" + d.getName());
-                    Log.i(TAG, "description" + d.getDescription());
-                    Log.i(TAG, "symptoms" + d.getSymptoms().isEmpty());
-
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Error fetching the diaries", Toast.LENGTH_LONG).show();
-        }
 
         mItemAdapter = new ItemAdapter(getContext(), mItems);
         mCoolDragAndDropGridView.setAdapter(mItemAdapter);

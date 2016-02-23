@@ -79,18 +79,19 @@ public class DataManager implements YahooWeatherInfoListener,
         @Override
         public void onSuccess(ArrayList<SummaryListData> result) {
             for (SummaryListData sld : result) {
-                Log.i(TAG2, "Calories Idle : " + sld.getCaloriesIdle());
-                Log.i(TAG2, "Last update : " + sld.getLastUpdate());
-                Log.i(TAG2, "Date : " + sld.getDate());
+                Log.i(TAG2, "-Calories Idle : " + sld.getCaloriesIdle());
+                Log.i(TAG2, "-Last update : " + sld.getLastUpdate());
+                Log.i(TAG2, "-Date : " + sld.getDate());
+                Log.i(TAG2, "===== Summaries =====");
 
                 ArrayList<SummaryData> summaries = sld.getSummaries();
                 for (SummaryData sd : summaries) {
-                    Log.i(TAG2, "Activity : " + sd.getActivity());
-                    Log.i(TAG2, "Calories : " + sd.getCalories());
-                    Log.i(TAG2, "Distance : " + sd.getDistance());
-                    Log.i(TAG2, "Duration : " + sd.getDuration());
-                    Log.i(TAG2, "Group : " + sd.getGroup());
-                    Log.i(TAG2, "Steps : " + sd.getSteps());
+                    Log.i(TAG2, "--Activity : " + sd.getActivity());
+                    Log.i(TAG2, "--Calories : " + sd.getCalories());
+                    Log.i(TAG2, "--Distance : " + sd.getDistance());
+                    Log.i(TAG2, "--Duration : " + sd.getDuration());
+                    Log.i(TAG2, "--Group : " + sd.getGroup());
+                    Log.i(TAG2, "--Steps : " + sd.getSteps());
                 }
             }
         }
@@ -106,24 +107,31 @@ public class DataManager implements YahooWeatherInfoListener,
     private MovesHandler<ArrayList<StorylineData>> storylineHandler = new MovesHandler<ArrayList<StorylineData>>() {
         @Override
         public void onSuccess(ArrayList<StorylineData> result) {
+
             for (StorylineData sld : result) {
+                Log.i(TAG2, "===== Storyline =====");
+
                 Log.i(TAG2, "-Calories Idle : " + sld.getCaloriesIdle());
                 Log.i(TAG2, "-Last update : " + sld.getLastUpdate());
                 Log.i(TAG2, "-Date : " + sld.getDate());
+                Log.i(TAG2, "===== Segments =====");
 
                 ArrayList<SegmentData> segments = sld.getSegments();
                 for (SegmentData sd : segments) {
-                    Log.i(TAG2, "-Segments start time : " + sd.getStartTime());
-                    Log.i(TAG2, "-Segments end time : " + sd.getEndTime());
-                    Log.i(TAG2, "-Segments type : " + sd.getType());
+                    Log.i(TAG2, "-Segments: Start time : " + sd.getStartTime());
+                    Log.i(TAG2, "-Segments: End time : " + sd.getEndTime());
+                    Log.i(TAG2, "-Segments: Type : " + sd.getType());
+
                     if (sd.getPlace() != null) {
-                        Log.i(TAG2, "-Segments place foursquare: " + sd.getPlace().getFoursquareId());
-                        Log.i(TAG2, "-Segments place type : " + sd.getPlace().getType());
-                        Log.i(TAG2, "-Segments place name: " + sd.getPlace().getName());
-                        Log.i(TAG2, "-Segments place foursquare id : " + sd.getPlace().getFoursquareCategoryIds());
-                        Log.i(TAG2, "-Segments place location lat : " + sd.getPlace().getLocation().getLat());
-                        Log.i(TAG2, "-Segments place location lon : " + sd.getPlace().getLocation().getLon());
+                        Log.i(TAG2, "-Segments: place foursquare: " + sd.getPlace().getFoursquareId());
+                        Log.i(TAG2, "-Segments: place type : " + sd.getPlace().getType());
+                        Log.i(TAG2, "-Segments: place name: " + sd.getPlace().getName());
+                        Log.i(TAG2, "-Segments: place foursquare id : " + sd.getPlace().getFoursquareCategoryIds());
+                        Log.i(TAG2, "-Segments: place location lat : " + sd.getPlace().getLocation().getLat());
+                        Log.i(TAG2, "-Segments: place location lon : " + sd.getPlace().getLocation().getLon());
                     }
+                    Log.i(TAG2, "===== Activities =====");
+
                     ArrayList<ActivityData> activities = sd.getActivities();
                     for (ActivityData ad : activities) {
                         Log.i(TAG2, "--Activities: name : " + ad.getActivity());
@@ -136,6 +144,9 @@ public class DataManager implements YahooWeatherInfoListener,
                         Log.i(TAG2, "--Activities: group : " + ad.getGroup());
                         Log.i(TAG2, "--Activities: steps : " + ad.getSteps());
                         ArrayList<TrackPointsData> trackPoints = ad.getTrackPoints();
+
+                        Log.i(TAG2, "===== Trackpoints =====");
+
                         for (TrackPointsData tpd : trackPoints) {
                             Log.i(TAG2, "---Track points" + tpd.getLat() + " ; " + tpd.getLon());
                             Log.i(TAG2, "---Track points" + tpd.getTime());
@@ -144,6 +155,8 @@ public class DataManager implements YahooWeatherInfoListener,
                     }
 
                 }
+
+                Log.i(TAG2, "===== Summaries =====");
 
                 ArrayList<SummaryData> summaries = sld.getSummary();
                 for (SummaryData sd : summaries) {

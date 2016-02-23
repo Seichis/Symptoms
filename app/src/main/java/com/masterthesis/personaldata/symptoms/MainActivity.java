@@ -160,6 +160,7 @@ public class MainActivity extends AppCompatActivity
 //        return false;
 //    }
 
+
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
         FlicManager.getInstance(this, new FlicManagerInitializedCallback() {

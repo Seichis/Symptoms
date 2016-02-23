@@ -16,7 +16,7 @@
             android:orientation="vertical">
 
             <com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView
-                android:id="@+id/coolDragAndDropGridView"
+                android:id="@+id/coolDragAndDropGridViewDiary"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 dragAndDrop:itemMargin="5dp"
