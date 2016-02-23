@@ -1,6 +1,7 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
@@ -24,6 +25,7 @@ import com.masterthesis.personaldata.symptoms.dragNdrop.Item;
 import com.masterthesis.personaldata.symptoms.dragNdrop.ItemAdapter;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SpanVariableGridView;
+import com.masterthesis.personaldata.symptoms.intro.SecondLayoutIntro;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 
 import java.sql.SQLException;
@@ -66,8 +68,8 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @Bind(R.id.coolDragAndDropGridViewDiary)
     CoolDragAndDropGridView mCoolDragAndDropGridView;
 
-    @Bind(R.id.input_diary_name)
-    EditText inputDiaryNameEditText;
+//    @Bind(R.id.input_diary_name)
+//    EditText inputDiaryNameEditText;
 
     // TODO: Rename and change types of parameters
 //    private String mParam1;
@@ -98,34 +100,38 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
 
     @OnClick(R.id.create_diary_button)
     void createDiary() {
-        List<Diary> sameNameDiaries = null;
-        String input=inputDiaryNameEditText.getText().toString();
-        try {
-            sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
-        } catch (SQLException e) {
-            e.printStackTrace();
-            Toast.makeText(getContext(), "Error searching the database for diary with the same name", Toast.LENGTH_LONG).show();
 
-        }
-        Log.i(TAG, "same name diaries " + sameNameDiaries);
-        // If the input field is not empty continue
-        if (input.isEmpty()) {
-            Toast.makeText(getContext(), "Please add a name for the diary you want to create", Toast.LENGTH_LONG).show();
-            return;
-        }
+        Intent intent = new Intent(getContext(), SecondLayoutIntro.class);
+        startActivity(intent);
 
-        // Check if there is another diary with the same name.
-        // If there is not create a new diary and update the list
-
-        if (sameNameDiaries != null && !sameNameDiaries.isEmpty()) {
-            Toast.makeText(getContext(), "A diary with the same name exists. Choose another name", Toast.LENGTH_LONG).show();
-        } else {
-            Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
-            diaries.add(diary);
-
-            mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
-            mItemAdapter.notifyDataSetChanged();
-        }
+//        List<Diary> sameNameDiaries = null;
+//        String input=inputDiaryNameEditText.getText().toString();
+//        try {
+//            sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            Toast.makeText(getContext(), "Error searching the database for diary with the same name", Toast.LENGTH_LONG).show();
+//
+//        }
+//        Log.i(TAG, "same name diaries " + sameNameDiaries);
+//        // If the input field is not empty continue
+//        if (input.isEmpty()) {
+//            Toast.makeText(getContext(), "Please add a name for the diary you want to create", Toast.LENGTH_LONG).show();
+//            return;
+//        }
+//
+//        // Check if there is another diary with the same name.
+//        // If there is not create a new diary and update the list
+//
+//        if (sameNameDiaries != null && !sameNameDiaries.isEmpty()) {
+//            Toast.makeText(getContext(), "A diary with the same name exists. Choose another name", Toast.LENGTH_LONG).show();
+//        } else {
+//            Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
+//            diaries.add(diary);
+//
+//            mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
+//            mItemAdapter.notifyDataSetChanged();
+//        }
 
     }
 

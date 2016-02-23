@@ -22,11 +22,11 @@
                 dragAndDrop:itemMargin="5dp"
                 dragAndDrop:numColumns="@integer/col_count"/>
 
-            <EditText
-                android:id="@+id/input_diary_name"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Medication Diary" />
+            <!--<EditText-->
+                <!--android:id="@+id/input_diary_name"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:hint="Medication Diary" />-->
 
             <Button
                 android:id="@+id/create_diary_button"

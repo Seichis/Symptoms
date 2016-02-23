@@ -81,4 +81,9 @@
     <string name="customize">Customize</string>
     <string name="show_dialog">Show Dialog</string>
     <string name="undo">Undo</string>
+    <string name="title_activity_second_intro">Create Diary</string>
+
+
+    <!-- App intro-->
+    <string name="skip">Y U DO DIS TO ME?</string>
 </resources>
