@@ -79,16 +79,16 @@ public class SymptomItemAdapter extends ArrayAdapter<SymptomItem> implements Spa
             itemViewHolder = (ItemViewHolder) convertView.getTag();
         }
 
-        final Item item = getItem(position);
+        final SymptomItem item = getItem(position);
+        if (item!=null) {
+            SpanVariableGridView.LayoutParams lp = new SpanVariableGridView.LayoutParams(convertView.getLayoutParams());
+            lp.span = item.getSpans();
+            convertView.setLayoutParams(lp);
 
-        SpanVariableGridView.LayoutParams lp = new SpanVariableGridView.LayoutParams(convertView.getLayoutParams());
-        lp.span = item.getSpans();
-        convertView.setLayoutParams(lp);
-
-        itemViewHolder.itemTitle.setText(item.getTitle());
-        itemViewHolder.itemDescription.setText(item.getDescription());
-        itemViewHolder.itemIcon.setImageResource(item.getIcon());
-
+            itemViewHolder.itemTitle.setText(item.getTitle());
+            itemViewHolder.itemDescription.setText(item.getDescription());
+            itemViewHolder.itemIcon.setImageResource(item.getIcon());
+        }
         return convertView;
     }
 

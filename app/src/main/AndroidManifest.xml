@@ -66,19 +66,6 @@
 
         </receiver>
 
-        <activity
-            android:name=".ActivityRecognitionActivity"
-            android:label="@string/title_activity_activity_recognition"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <!--
-        Service that provides activity recognition data. Setting the android:exported attribute
-        to "false" stops other apps from starting this service, even when using an explicit
-        intent.
-        -->
-        <service
-            android:name=".activityrecognition.DetectedActivitiesIntentService"
-            android:exported="false" />
 
         <activity
             android:name=".MovesActivity"

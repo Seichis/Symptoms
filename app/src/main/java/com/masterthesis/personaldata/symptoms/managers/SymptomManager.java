@@ -1,6 +1,7 @@
 package com.masterthesis.personaldata.symptoms.managers;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.os.CountDownTimer;
 import android.util.Log;
@@ -37,6 +38,7 @@ public class SymptomManager implements Observer {
     CountDownTimer countDownTimer;
     DatabaseHelper dbHelper;
     private boolean isCountDown;
+    private SharedPreferences preferences;
 
     private SymptomManager() {
 
@@ -61,7 +63,7 @@ public class SymptomManager implements Observer {
             dataManager.fetchWeatherData(context);
             isCountDown = true;
 
-            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.UK);
+//            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.UK);
 
 
 //            dataManager.movesStorylineDay(format.format(new Date()),true);
@@ -87,7 +89,12 @@ public class SymptomManager implements Observer {
 
                     int symptomType = symptomInputList.size() - 1;
                     //TODO add the real symptom saved in shared preferences probably
+                    preferences=context.getSharedPreferences("com.masterthesis.personaldata.symptoms",Context.MODE_PRIVATE);
+
                     symptom.setSymptomType(String.valueOf(symptomType));
+
+
+
                     //TODO save the completed symptom in the db
                     if (symptom.isValid()) {
                         Log.i(TAG, "Symptom saved");

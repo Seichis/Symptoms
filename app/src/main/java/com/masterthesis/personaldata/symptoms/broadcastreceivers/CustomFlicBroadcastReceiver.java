@@ -20,6 +20,7 @@ import io.flic.lib.FlicManager;
 public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
     static long tStart;
     static long tEnd;
+    private static SharedPreferences preferences;
 
     //    static long measureEndTime=10000;
     static String TAG = "CustomFlicBroadcastReceiver";
@@ -36,6 +37,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
     @Override
     public void onButtonClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isClick, boolean isHold) {
         super.onButtonClickOrHold(context, button, wasQueued, timeDiff, isClick, isHold);
+
     }
 
     @Override
@@ -81,6 +83,12 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
 
 
     }
+
+    private void getSymptomOrder(Context context){
+        preferences = context.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
+
+    }
+
 
     @Override
     public void onButtonRemoved(Context context, FlicButton button) {

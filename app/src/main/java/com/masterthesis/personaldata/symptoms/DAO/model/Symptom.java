@@ -27,12 +27,12 @@ public class Symptom extends BaseDAO {
 
     @DatabaseField(columnName = SYMPTOM_TYPE_FIELD_NAME, canBeNull = false)
     String symptomType;
-    @DatabaseField(columnName = SYMPTOM_CONTEXT_FIELD_NAME, canBeNull = false)
+    @DatabaseField(columnName = SYMPTOM_CONTEXT_FIELD_NAME)
     String context = null;
     @DatabaseField(columnName = INTENSITY_FIELD_NAME, canBeNull = false)
     double intensity;
 
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME,canBeNull = false)
     private Diary diary;
 
     public Symptom(String _symptomType) {

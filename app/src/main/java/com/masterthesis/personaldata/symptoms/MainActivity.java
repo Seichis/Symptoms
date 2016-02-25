@@ -114,9 +114,8 @@ public class MainActivity extends AppCompatActivity
         DiaryManager diaryManager = DiaryManager.getInstance();
         diaryManager.init(this);
 
-        preferences = getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-//        editor=preferences.edit();
-//        preferences.edit().remove("Pain diary").apply();
+        preferences = getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
+
         Map<String, ?> allEntries = preferences.getAll();
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
             Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());

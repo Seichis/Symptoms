@@ -1,7 +1,7 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
 import android.content.Context;
-import android.database.SQLException;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,15 +9,28 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
+import com.masterthesis.personaldata.symptoms.Constants;
+import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.R;
+import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
+import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
+import com.masterthesis.personaldata.symptoms.dragNdrop.SpanVariableGridView;
+import com.masterthesis.personaldata.symptoms.dragNdrop.SymptomItem;
+import com.masterthesis.personaldata.symptoms.dragNdrop.SymptomItemAdapter;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
-import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -31,20 +44,29 @@ import butterknife.OnClick;
  * Use the {@link SymptomFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class SymptomFragment extends Fragment {
+public class SymptomFragment extends Fragment implements CoolDragAndDropGridView.DragAndDropListener, SpanVariableGridView.OnItemClickListener,
+        SpanVariableGridView.OnItemLongClickListener {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "SymptomFragment";
-    List<Symptom> symptoms;
+    static String[] orderedSymptoms = new String[3];
+    private static SharedPreferences preferences;
+    Set<String> symptoms;
+    List<SymptomItem> mItems = new LinkedList<>();
+    @Bind(R.id.scrollViewSymptoms)
+    ScrollView scrollView;
+    @Bind(R.id.coolDragAndDropGridViewSymptom)
+    CoolDragAndDropGridView mCoolDragAndDropGridView;
     @Bind(R.id.input_symptom_type)
     EditText symptomEditText;
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
     private OnSymptomFragmentInteractionListener mListener;
+    private SymptomItemAdapter mItemAdapter;
 
     public SymptomFragment() {
         // Required empty public constructor
@@ -76,6 +98,7 @@ public class SymptomFragment extends Fragment {
         } else {
             //TODO catch no diary exception
             if (diaryManager.addSymptomType(diaryManager.getActiveDiary(), symptomEditText.getText().toString())) {
+                refreshSymptomsFromPref();
                 Toast.makeText(getContext(), "Symptom created in the diary : " + diaryManager.getActiveDiary().getName(), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(getContext(), "Something went wrong while creating the symptom type in the diary " + diaryManager.getActiveDiary().getName(), Toast.LENGTH_LONG).show();
@@ -91,6 +114,48 @@ public class SymptomFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        preferences = getContext().getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
+
+    }
+
+    private void refreshSymptomsFromPref() {
+        Diary activeDiary = DiaryManager.getInstance().getActiveDiary();
+        if (activeDiary != null) {
+            symptoms = preferences.getStringSet(activeDiary.getName(), new HashSet<String>());
+            if (!symptoms.isEmpty()) {
+                mItems.clear();
+//                mItems.addAll(Arrays.<SymptomItem>asList());
+                ;
+                TreeSet<String> symptomTreeSet = new TreeSet<>();
+                symptomTreeSet.addAll(symptoms);
+                Log.i(TAG, Arrays.toString(symptomTreeSet.toArray()));
+
+                for (String s : symptomTreeSet) {
+                    String[] sl = s.split(",");
+                    Log.i(TAG, Arrays.toString(sl));
+                    switch (sl[0]) {
+                        case "0":
+                            orderedSymptoms[0] = sl[1];
+                            mItems.add(0, new SymptomItem(R.drawable.common_full_open_on_phone, 3, sl[0], sl[1]));
+                            break;
+                        case "1":
+                            orderedSymptoms[1] = sl[1];
+                            mItems.add(1, new SymptomItem(R.drawable.common_full_open_on_phone, 3, sl[0], sl[1]));
+                            break;
+                        case "2":
+                            orderedSymptoms[2] = sl[1];
+                            mItems.add(2, new SymptomItem(R.drawable.common_full_open_on_phone, 3, sl[0], sl[1]));
+                            break;
+                    }
+                }
+
+                mItemAdapter.notifyDataSetChanged();
+            } else {
+                Toast.makeText(getContext(), "You have not added any symptoms to your diary", Toast.LENGTH_LONG).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "You have not created any diaries yet. Create one to and get started", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -98,32 +163,39 @@ public class SymptomFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        try {
-            symptoms = SymptomManager.getInstance().getAllSymptoms();
+//        try {
+//            symptoms = SymptomManager.getInstance().getAllSymptoms();
+//
+//        } catch (SQLException e) {
+//            throw new RuntimeException("Could not lookup Think in the database", e);
+//        } catch (java.sql.SQLException e) {
+//            e.printStackTrace();
+//        } finally {
+//            for (Symptom s : symptoms) {
+//                Log.i(TAG, "context" + s.getContext());
+//                Log.i(TAG, "symptom type" + s.getSymptomType());
+//                Log.i(TAG, "diary id" + s.getDiary().getId());
+//                Log.i(TAG, "diary name" + s.getDiary().getName());
+//                Log.i(TAG, "diary description" + s.getDiary().getDescription());
+//                Log.i(TAG, "symptom Id" + s.getId());
+//                Log.i(TAG, "timestamp" + s.getCreatedAt());
+//                Log.i(TAG, "timestamp" + s.getUpdatedAt());
+//                Log.i(TAG, "intensity" + s.getIntensity());
+////            Log.i(TAG,""+s.());
+////            Log.i(TAG,""+s.());
+//
+//            }
 
-        } catch (SQLException e) {
-            throw new RuntimeException("Could not lookup Think in the database", e);
-        } catch (java.sql.SQLException e) {
-            e.printStackTrace();
-        } finally {
-            for (Symptom s : symptoms) {
-                Log.i(TAG, "context" + s.getContext());
-                Log.i(TAG, "symptom type" + s.getSymptomType());
-                Log.i(TAG, "diary id" + s.getDiary().getId());
-                Log.i(TAG, "diary name" + s.getDiary().getName());
-                Log.i(TAG, "diary description" + s.getDiary().getDescription());
-                Log.i(TAG, "symptom Id" + s.getId());
-                Log.i(TAG, "timestamp" + s.getCreatedAt());
-                Log.i(TAG, "timestamp" + s.getUpdatedAt());
-                Log.i(TAG, "intensity" + s.getIntensity());
-//            Log.i(TAG,""+s.());
-//            Log.i(TAG,""+s.());
-
-            }
-
-        }
+//        }
         View view = inflater.inflate(R.layout.fragment_symptom, container, false);
         ButterKnife.bind(this, view);
+        mItemAdapter = new SymptomItemAdapter(getContext(), mItems);
+        mCoolDragAndDropGridView.setAdapter(mItemAdapter);
+        mCoolDragAndDropGridView.setScrollingStrategy(new SimpleScrollingStrategy(scrollView));
+        mCoolDragAndDropGridView.setDragAndDropListener(this);
+        mCoolDragAndDropGridView.setOnItemLongClickListener(this);
+        mItemAdapter.notifyDataSetChanged();
+        refreshSymptomsFromPref();
 
 
         return view;
@@ -152,6 +224,60 @@ public class SymptomFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+        mCoolDragAndDropGridView.startDragAndDrop();
+
+        return false;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
+    }
+
+    @Override
+    public void onDragItem(int from) {
+
+    }
+
+    @Override
+    public void onDraggingItem(int from, int to) {
+
+    }
+
+    @Override
+    public void onDropItem(int from, int to) {
+        if (from != to) {
+            Log.i(TAG, "on drop from " + from + " to " + to);
+            mItems.add(to, mItems.remove(from));
+            mItemAdapter.notifyDataSetChanged();
+            Log.i(TAG, "on drop from " + orderedSymptoms[from] + " to " + orderedSymptoms[to]);
+            String tmp = orderedSymptoms[from];
+            orderedSymptoms[from] = orderedSymptoms[to];
+            orderedSymptoms[to] = tmp;
+            Log.i(TAG, "ordered array" + Arrays.toString(orderedSymptoms));
+
+            symptoms.clear();
+            for (int i = 0; i < orderedSymptoms.length; i++) {
+                symptoms.add(String.valueOf(i) + "," + orderedSymptoms[i]);
+            }
+            Log.i(TAG, "set before commit " + Arrays.toString(symptoms.toArray()));
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putStringSet(DiaryManager.getInstance().getActiveDiary().getName(), symptoms);
+            editor.commit();
+            refreshSymptomsFromPref();
+        }
+    }
+
+    @Override
+    public boolean isDragAndDropEnabled(int position) {
+        return true;
+    }
+
 
     /**
      * This interface must be implemented by activities that contain this

@@ -21,6 +21,7 @@ import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.R;
 import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
 import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItem;
+import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItemAdapter;
 import com.masterthesis.personaldata.symptoms.dragNdrop.Item;
 import com.masterthesis.personaldata.symptoms.dragNdrop.ItemAdapter;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
@@ -57,10 +58,10 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     public static List<Diary> diaries = new ArrayList<>();
     private static SharedPreferences preferences;
     private static SharedPreferences.Editor editor;
-    ItemAdapter mItemAdapter;
+    DiaryItemAdapter mItemAdapter;
     DiaryManager diaryManager;
     //    CoolDragAndDropGridView mCoolDragAndDropGridView;
-    List<Item> mItems = new LinkedList<>();
+    List<DiaryItem> mItems = new LinkedList<>();
     @Bind(R.id.create_diary_button)
     Button createDiaryButton;
     @Bind(R.id.scrollView)
@@ -68,8 +69,8 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @Bind(R.id.coolDragAndDropGridViewDiary)
     CoolDragAndDropGridView mCoolDragAndDropGridView;
 
-//    @Bind(R.id.input_diary_name)
-//    EditText inputDiaryNameEditText;
+    @Bind(R.id.input_diary_name)
+    EditText inputDiaryNameEditText;
 
     // TODO: Rename and change types of parameters
 //    private String mParam1;
@@ -101,37 +102,37 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @OnClick(R.id.create_diary_button)
     void createDiary() {
 
-        Intent intent = new Intent(getContext(), SecondLayoutIntro.class);
-        startActivity(intent);
+//        Intent intent = new Intent(getContext(), SecondLayoutIntro.class);
+//        startActivity(intent);
 
-//        List<Diary> sameNameDiaries = null;
-//        String input=inputDiaryNameEditText.getText().toString();
-//        try {
-//            sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//            Toast.makeText(getContext(), "Error searching the database for diary with the same name", Toast.LENGTH_LONG).show();
-//
-//        }
-//        Log.i(TAG, "same name diaries " + sameNameDiaries);
-//        // If the input field is not empty continue
-//        if (input.isEmpty()) {
-//            Toast.makeText(getContext(), "Please add a name for the diary you want to create", Toast.LENGTH_LONG).show();
-//            return;
-//        }
-//
-//        // Check if there is another diary with the same name.
-//        // If there is not create a new diary and update the list
-//
-//        if (sameNameDiaries != null && !sameNameDiaries.isEmpty()) {
-//            Toast.makeText(getContext(), "A diary with the same name exists. Choose another name", Toast.LENGTH_LONG).show();
-//        } else {
-//            Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
-//            diaries.add(diary);
-//
-//            mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
-//            mItemAdapter.notifyDataSetChanged();
-//        }
+        List<Diary> sameNameDiaries = null;
+        String input=inputDiaryNameEditText.getText().toString();
+        try {
+            sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error searching the database for diary with the same name", Toast.LENGTH_LONG).show();
+
+        }
+        Log.i(TAG, "same name diaries " + sameNameDiaries);
+        // If the input field is not empty continue
+        if (input.isEmpty()) {
+            Toast.makeText(getContext(), "Please add a name for the diary you want to create", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Check if there is another diary with the same name.
+        // If there is not create a new diary and update the list
+
+        if (sameNameDiaries != null && !sameNameDiaries.isEmpty()) {
+            Toast.makeText(getContext(), "A diary with the same name exists. Choose another name", Toast.LENGTH_LONG).show();
+        } else {
+            Diary diary = diaryManager.createDiary(input, "This is the description : Monitor something");
+            diaries.add(diary);
+
+            mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, diary.getName(), diary.getDescription()));
+            mItemAdapter.notifyDataSetChanged();
+        }
 
     }
 
@@ -172,7 +173,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         View view = inflater.inflate(R.layout.fragment_diary, container, false);
         ButterKnife.bind(this, view);
 
-        mItemAdapter = new ItemAdapter(getContext(), mItems);
+        mItemAdapter = new DiaryItemAdapter(getContext(), mItems);
         mCoolDragAndDropGridView.setAdapter(mItemAdapter);
         mCoolDragAndDropGridView.setScrollingStrategy(new SimpleScrollingStrategy(scrollView));
         mCoolDragAndDropGridView.setDragAndDropListener(this);
