@@ -20,6 +20,7 @@ public class Diary extends BaseDAO {
     public static final String COLOR_FIELD_NAME = "color";
     public static final String FIRST_SYMPTOM_FIELD_NAME = "symptoms";
     public static final String DESCRIPTION_FIELD_NAME = "description";
+    public static final String SYMPTOM_TYPES_FIELD_NAME = "symptomTypes";
 
     //    @DatabaseField(generatedId = true)
 //    private int id;
@@ -31,6 +32,17 @@ public class Diary extends BaseDAO {
     private ForeignCollection<Symptom> symptoms;
     @DatabaseField(columnName = DESCRIPTION_FIELD_NAME)
     private String description;
+
+    public String getSymptomTypes() {
+        return symptomTypes;
+    }
+
+    public void setSymptomTypes(String symptomTypes) {
+        this.symptomTypes = symptomTypes;
+    }
+
+    @DatabaseField(columnName = SYMPTOM_TYPES_FIELD_NAME)
+    private String symptomTypes;
 
 
     public Diary() {

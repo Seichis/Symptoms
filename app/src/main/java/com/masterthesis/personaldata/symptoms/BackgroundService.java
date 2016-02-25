@@ -26,11 +26,11 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     static Notification notification;
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
-    SharedPreferences preferences;
-    SharedPreferences.Editor editor;
+//    SharedPreferences preferences;
+//    SharedPreferences.Editor editor;
     MainActivity mainActivity = null;
 
-    AlarmBReceiver alarmBReceiver=null;
+    AlarmBReceiver alarmBReceiver = null;
 
     public BackgroundService() {
     }
@@ -47,15 +47,15 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 //        super.onStartCommand(intent, flags, startId);
-        CustomFlicBroadcastReceiver customFlicBroadcastReceiver=new CustomFlicBroadcastReceiver();
-        mainActivity=MainActivity.getInstance();
+//        CustomFlicBroadcastReceiver customFlicBroadcastReceiver = new CustomFlicBroadcastReceiver();
+        mainActivity = MainActivity.getInstance();
 
-        preferences = this.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-        editor = preferences.edit();
+//        preferences = this.getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
+//        editor = preferences.edit();
         backgroundService = this;
         runAsForeground();
         FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
-        if (mainActivity!=null) {
+        if (mainActivity != null) {
             if (mainActivity.getButton() == null) {
                 try {
                     FlicManager.getInstance(backgroundService, new FlicManagerInitializedCallback() {
@@ -123,5 +123,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(notif_id, notification);
     }
+
+
 
 }

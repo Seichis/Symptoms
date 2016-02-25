@@ -35,9 +35,9 @@ public class Symptom extends BaseDAO {
     @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME,canBeNull = false)
     private Diary diary;
 
-    public Symptom(String _symptomType) {
-        this.symptomType = _symptomType;
-    }
+//    public Symptom(String _symptomType) {
+//        this.symptomType = _symptomType;
+//    }
 
     @Override
     public Integer getId() {

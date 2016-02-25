@@ -1,31 +1,27 @@
 package com.masterthesis.personaldata.symptoms.managers;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.util.Log;
 
-import com.masterthesis.personaldata.symptoms.Constants;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.TreeMap;
 
 
 public class DiaryManager {
     private static final String TAG = "DiaryManager";
     private static DiaryManager diaryManager = new DiaryManager();
-    private SharedPreferences preferencesDiary;
-    private SharedPreferences.Editor editor;
     private DatabaseHelper dbHelper;
 
-//    private Context context;
+    private Context context;
 
     private DiaryManager() {
 
@@ -36,9 +32,8 @@ public class DiaryManager {
     }
 
     public void init(Context context) {
-//        context = context;
+        this.context = context;
         dbHelper = new DatabaseHelper(context);
-        preferencesDiary = context.getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
     }
 
     public Diary createDiary(String name, String description) {
@@ -52,53 +47,47 @@ public class DiaryManager {
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
-        Set<String> symTypes = new LinkedHashSet<>();
-
-        editor = preferencesDiary.edit();
-        editor.putStringSet(name, symTypes);
-        boolean committed = editor.commit();
-
-        Log.i(TAG, "Set Created. " + committed + diary.getId());
 
         return diary;
     }
 
     public boolean addSymptomType(Diary diary, String symType) {
-        Set<String> symTypes;
-        String diaryName = diary.getName();
-        Log.i(TAG, "pref" + preferencesDiary.contains(diaryName));
-        if (preferencesDiary.contains(diaryName)) {
-            symTypes = preferencesDiary.getStringSet(diaryName, null);
-            if (symTypes != null) {
-                if (symTypes.contains(symType) || symTypes.size() >= 3) {
-                    // TODO Show the user feedback that the symptom list is full for this diary:
+        TreeMap<Integer, String> symTypes = new Gson().fromJson(diary.getSymptomTypes(), new TypeToken<TreeMap<Integer, String>>() {
+        }.getType());
 
-                    Log.i(TAG, "This Diary has no more room for more symptoms");
-                    return false;
-                } else {
-                    int size=symTypes.size();
-                    symTypes.add(String.valueOf(size)+","+symType);
-                    editor = preferencesDiary.edit();
-
-                    editor.putStringSet(diaryName, symTypes);
-                    editor.apply();
-                    Log.i(TAG, "Set existed.Symptom type added." + symTypes.size());
-                    return true;
-                }
-            } else {
-                //TODO Log error: no set was created for that diary error
-                Log.i(TAG, "Log error: no set was created for that diary error");
-
-                return false;
-            }
+//        for (TreeMap.Entry<Integer, String> entry : symTypes.entrySet()) {
+//            Log.d("map values", entry.getKey() + ": " + entry.getValue());
+//        }
+        if (symTypes==null) {
+            symTypes=new TreeMap<>();
+            symTypes.put(1, symType);
+            diary.setSymptomTypes(new Gson().toJson(symTypes));
+            updateDiary(diary);
+            return true;
         } else {
-            //TODO Log error: no entry in the preferences for the diary
-            Log.i(TAG, "Log error: no entry in the preferences for the diary");
+            if (symTypes.containsValue(symType) || symTypes.size() >= 3) {
+                // TODO Show the user feedback that the symptom list is full for this diary:
 
-            return false;
+                Log.i(TAG, "This Diary has no more room for more symptoms");
+                return false;
+            } else {
+                int size = symTypes.size()+1;
+                symTypes.put(size, symType);
+                diary.setSymptomTypes(new Gson().toJson(symTypes));
+                updateDiary(diary);
+                Log.i(TAG, "More symptom types existed.Symptom type added." + symTypes.size());
+                return true;
+            }
         }
     }
 
+    public void updateDiary(Diary diary) {
+        try {
+            dbHelper.getDiaryDAO().update(diary);
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void deleteDiary() {
 
@@ -114,7 +103,7 @@ public class DiaryManager {
     }
 
     public List<Diary> searchByName(String name) throws java.sql.SQLException {
-        return dbHelper.getDiaryDAO().queryForEq(Diary.NAME_FIELD_NAME,name);
+        return dbHelper.getDiaryDAO().queryForEq(Diary.NAME_FIELD_NAME, name);
     }
 
     public Diary getActiveDiary() {

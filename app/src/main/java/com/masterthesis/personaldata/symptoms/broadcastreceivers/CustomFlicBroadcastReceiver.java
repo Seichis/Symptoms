@@ -34,21 +34,21 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
     }
 
 
-    @Override
-    public void onButtonClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isClick, boolean isHold) {
-        super.onButtonClickOrHold(context, button, wasQueued, timeDiff, isClick, isHold);
-
-    }
-
-    @Override
-    public void onButtonSingleOrDoubleClick(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick) {
-        super.onButtonSingleOrDoubleClick(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick);
-    }
-
-    @Override
-    public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
-        super.onButtonSingleOrDoubleClickOrHold(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick, isHold);
-    }
+//    @Override
+//    public void onButtonClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isClick, boolean isHold) {
+//        super.onButtonClickOrHold(context, button, wasQueued, timeDiff, isClick, isHold);
+//
+//    }
+//
+//    @Override
+//    public void onButtonSingleOrDoubleClick(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick) {
+//        super.onButtonSingleOrDoubleClick(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick);
+//    }
+//
+//    @Override
+//    public void onButtonSingleOrDoubleClickOrHold(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isSingleClick, boolean isDoubleClick, boolean isHold) {
+//        super.onButtonSingleOrDoubleClickOrHold(context, button, wasQueued, timeDiff, isSingleClick, isDoubleClick, isHold);
+//    }
 
     @Override
     public void onButtonUpOrDown(Context context, FlicButton button, boolean wasQueued, int timeDiff, boolean isUp, boolean isDown) {
@@ -75,7 +75,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
                 tDelta = tEnd - tStart;
                 elapsedSeconds = tDelta;
                 SymptomManager symptomManager = SymptomManager.getInstance();
-                symptomManager.manageSymptomInput(context,elapsedSeconds);
+                symptomManager.manageSymptomInput(elapsedSeconds);
                 Log.i(TAG, "  " + tStart);
                 Log.i(TAG, "  " + tEnd);
             }

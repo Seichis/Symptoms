@@ -120,7 +120,7 @@ public class MainActivity extends AppCompatActivity
         for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
             Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
         }
-//        preferences.edit().clear().apply();
+        preferences.edit().clear().apply();
 
     }
 
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity
             public void onInitialized(FlicManager manager) {
                 button = manager.completeGrabButton(requestCode, resultCode, data);
                 if (button != null) {
-                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.ALL);
+                    button.registerListenForBroadcast(FlicBroadcastReceiverFlags.UP_OR_DOWN | FlicBroadcastReceiverFlags.REMOVED);
 //                    button.setActiveMode(false);
                     Toast.makeText(MainActivity.this, "Grabbed a button", Toast.LENGTH_SHORT).show();
                     Log.i(TAG, "button id" + button.getButtonId());

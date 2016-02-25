@@ -78,9 +78,10 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".intro.SecondLayoutIntro"
+        <activity
+            android:name=".intro.SecondLayoutIntro"
             android:label="@string/title_activity_second_intro"
-            android:theme="@style/FullscreenTheme"/>
+            android:theme="@style/FullscreenTheme" />
     </application>
 
 </manifest>

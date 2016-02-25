@@ -17,6 +17,7 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.masterthesis.personaldata.symptoms.Constants;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.R;
 import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
@@ -141,7 +142,6 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         super.onCreate(savedInstanceState);
 
         diaryManager = DiaryManager.getInstance();
-        preferences = getContext().getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
 
         try {
             diaries = diaryManager.getDiaries();
@@ -179,6 +179,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         mCoolDragAndDropGridView.setDragAndDropListener(this);
         mCoolDragAndDropGridView.setOnItemLongClickListener(this);
         mItemAdapter.notifyDataSetChanged();
+        preferences = getContext().getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
 
         return view;
     }

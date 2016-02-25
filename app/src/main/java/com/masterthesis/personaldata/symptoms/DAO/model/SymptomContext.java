@@ -2,6 +2,7 @@ package com.masterthesis.personaldata.symptoms.DAO.model;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
 import java.util.Observable;
 
 /**
