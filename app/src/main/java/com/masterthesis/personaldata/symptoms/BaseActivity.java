@@ -1,25 +1,35 @@
 package com.masterthesis.personaldata.symptoms;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.masterthesis.personaldata.symptoms.Constants;
-import com.masterthesis.personaldata.symptoms.MyApplication;
 
 
 /**
@@ -30,16 +40,26 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         GoogleApiClient.OnConnectionFailedListener {
 
 
+    public static final int REQUEST_FINE_LOCATION = 0;
+    private static final int REQUEST_COARSE_LOCATION = 1;
+    private static final String TAG = "BaseActivity";
     /*
      * Other class member variables
      */
-    private static Location currentLocation;
+    private Location currentLocation;
+    /**
+     * Requests the fine location permission.
+     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
+     * permission, otherwise it is requested directly.
+     */
+    @Nullable
+    View view;
     // A request to connect to Location Services
     private LocationRequest locationRequest;
     // Stores the current instantiation of the location client in this object
     private GoogleApiClient locationClient;
 
-    public static Location getCurrentLocation() {
+    public Location getCurrentLocation() {
         return currentLocation;
     }
 
@@ -47,7 +67,7 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
+        buildAlertMessageNoGps();
         // Create a new global location parameters object
         locationRequest = LocationRequest.create();
 
@@ -66,6 +86,14 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
+        locationClient.connect();
+
+
+        try {
+            view = this.findViewById(android.R.id.content).getRootView();
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+        }
     }
 
     /*
@@ -84,6 +112,39 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         super.onStop();
     }
 
+    /**
+     * Requests the Coarse location permission.
+     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
+     * permission, otherwise it is requested directly.
+     */
+    private void requestCoarseLocationPermission() {
+
+        // BEGIN_INCLUDE(camera_permission_request)
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example if the user has previously denied the permission.
+
+            Snackbar.make(view, R.string.permission_location_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat.requestPermissions(getParent(),
+                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                                    REQUEST_COARSE_LOCATION);
+                        }
+                    })
+                    .show();
+        } else {
+
+            // Camera permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_COARSE_LOCATION);
+        }
+    }
+
     /*
      * Called when the Activity is restarted, even before it becomes visible.
      */
@@ -92,7 +153,6 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         super.onStart();
 
         // Connect to the location services client
-        locationClient.connect();
     }
 
     /*
@@ -149,6 +209,7 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
+
     /*
      * Verify that Google Play services is available before making a request.
      *
@@ -156,7 +217,8 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
      */
     private boolean servicesConnected() {
         // Check that Google Play services is available
-        int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+        GoogleApiAvailability googleAPI = GoogleApiAvailability.getInstance();
+        int resultCode = googleAPI.isGooglePlayServicesAvailable(this);
 
         // If Google Play services is available
         if (ConnectionResult.SUCCESS == resultCode) {
@@ -169,7 +231,7 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
             // Google Play services was not available for some reason
         } else {
             // Display an error dialog
-            Dialog dialog = GooglePlayServicesUtil.getErrorDialog(resultCode, this, 0);
+            Dialog dialog = googleAPI.getErrorDialog(this,resultCode,0);
             if (dialog != null) {
                 ErrorDialogFragment errorFragment = new ErrorDialogFragment();
                 errorFragment.setDialog(dialog);
@@ -183,12 +245,123 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
      * Called by Location Services when the request to connect the client finishes successfully. At
      * this point, you can request the current location or start periodic updates
      */
+    @Override
     public void onConnected(Bundle bundle) {
         if (MyApplication.APPDEBUG) {
             Log.d("Connected loc serv", MyApplication.APPTAG);
         }
-        currentLocation = getLocation();
         startPeriodicUpdates();
+        currentLocation = getLocation();
+        if (currentLocation != null) {
+            Log.i(TAG, currentLocation.toString());
+        } else {
+            Log.i(TAG, "paparia");
+
+        }
+    }
+
+
+    AlertDialog alert;
+
+    private void buildAlertMessageNoGps() {
+        final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
+
+        if ( !manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setMessage("Your GPS seems to be disabled, do you want to enable it?")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                            recreate();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            alert = builder.create();
+
+            alert.show();
+        }
+
+    }
+
+
+    /**
+     * Callback received when a permissions request has been completed.
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_FINE_LOCATION) {
+            // BEGIN_INCLUDE(permission_result)
+            // Received permission result for camera permission.
+
+            // Check if the only required permission has been granted
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, preview can be displayed
+                Snackbar.make(view, R.string.permision_available_location,
+                        Snackbar.LENGTH_SHORT).show();
+                currentLocation=getLocation();
+            } else {
+                Snackbar.make(view, R.string.permissions_not_granted,
+                        Snackbar.LENGTH_SHORT).show();
+
+            }
+            // END_INCLUDE(permission_result)
+
+
+        } else if (requestCode == REQUEST_COARSE_LOCATION) {
+            // BEGIN_INCLUDE(permission_result)
+
+            // Check if the only required permission has been granted
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, preview can be displayed
+                Snackbar.make(view, R.string.permision_available_location,
+                        Snackbar.LENGTH_SHORT).show();
+                currentLocation=getLocation();
+            } else {
+                Snackbar.make(view, R.string.permissions_not_granted,
+                        Snackbar.LENGTH_SHORT).show();
+
+            }
+            // END_INCLUDE(permission_result)
+
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
+
+    private void requestFineLocationPermission() {
+        // BEGIN_INCLUDE(camera_permission_request)
+
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Provide an additional rationale to the user if the permission was not granted
+            // and the user would benefit from additional context for the use of the permission.
+            // For example if the user has previously denied the permission.
+            Snackbar.make(view, R.string.permission_location_rationale,
+                    Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.ok, new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ActivityCompat.requestPermissions(getParent(),
+                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                    REQUEST_FINE_LOCATION);
+                        }
+                    })
+                    .show();
+        } else {
+
+            // Camera permission has not been granted yet. Request it directly.
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_FINE_LOCATION);
+        }
+        // END_INCLUDE(camera_permission_request)
     }
 
     /*
@@ -208,6 +381,7 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
     /*
      * Called by Location Services if the attempt to Location Services fails.
      */
+    @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         // Google Play services can resolve some errors it detects. If the error has a resolution, try
         // sending an Intent to start a Google Play services activity that can resolve error.
@@ -230,7 +404,7 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         }
     }
 
-
+    @Override
     public void onLocationChanged(Location location) {
 
     }
@@ -240,15 +414,12 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
      */
     private void startPeriodicUpdates() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+            checkPermissions();
+            Log.i(TAG,"no permissions");
+
             return;
         }
+        Log.i(TAG,"periodic updates started");
         LocationServices.FusedLocationApi.requestLocationUpdates(locationClient, locationRequest, this);
     }
 
@@ -267,21 +438,30 @@ public class BaseActivity extends AppCompatActivity implements LocationListener,
         if (servicesConnected()) {
             // Get the current location
             if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
+                checkPermissions();
+                Log.i(TAG,"no permissions");
                 return null;
             }
+            Log.i(TAG,"getting  location");
+
             return LocationServices.FusedLocationApi.getLastLocation(locationClient);
         } else {
             return null;
         }
     }
 
+    protected void checkPermissions(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // Permission was added in API Level 16
+            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                requestFineLocationPermission();
+            }
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED) {
+                requestCoarseLocationPermission();
+            }
+        }
+    }
 
     /*
      * Show a dialog returned by Google Play services for the connection error code

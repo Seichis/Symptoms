@@ -17,6 +17,8 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.j256.ormlite.dao.ForeignCollection;
 import com.masterthesis.personaldata.symptoms.Constants;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
@@ -31,12 +33,14 @@ import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SpanVariableGridView;
 import com.masterthesis.personaldata.symptoms.intro.SecondLayoutIntro;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
+import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.TreeMap;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -150,16 +154,12 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
                     mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
                     Log.i(TAG, "name" + d.getName());
                     Log.i(TAG, "description" + d.getDescription());
-                    Log.i(TAG, "symptoms" + d.getSymptoms().toString());
-                    ForeignCollection<Symptom> symptoms=d.getSymptoms();
-                    for (Symptom s:symptoms){
-                        Log.i(TAG,"context"+s.getContext());
-                        Log.i(TAG,"diary"+s.getDiary());
-                        Log.i(TAG,"type"+s.getSymptomType());
-                        Log.i(TAG,"intensity"+s.getIntensity());
-
-                    }
-
+//                    Log.i(TAG, "symptoms" + d.getSymptoms().toString());
+//                    Log.i(TAG, "symptoms" + d.getSymptoms().size());
+                    TreeMap<Integer, String> symTypes = d.getSymptomTypes();
+                    Log.i(TAG, String.valueOf(symTypes));
+                    Log.i(TAG, String.valueOf(SymptomManager.getInstance().getSymptomsByDiary(d)));
+                    Log.i(TAG, String.valueOf(SymptomManager.getInstance().getAllSymptoms()));
                 }
             }
         } catch (SQLException e) {

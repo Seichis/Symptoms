@@ -29,6 +29,16 @@ public class SymptomContext extends Observable {
     private String baroPressureRising;
     private String visibility;
 
+    public String getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(String altitude) {
+        this.altitude = altitude;
+    }
+
+    private String altitude;
+
 
     public SymptomContext() {
         super();

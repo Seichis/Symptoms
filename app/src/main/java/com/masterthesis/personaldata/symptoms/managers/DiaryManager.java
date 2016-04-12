@@ -52,8 +52,7 @@ public class DiaryManager {
     }
 
     public boolean addSymptomType(Diary diary, String symType) {
-        TreeMap<Integer, String> symTypes = new Gson().fromJson(diary.getSymptomTypes(), new TypeToken<TreeMap<Integer, String>>() {
-        }.getType());
+        TreeMap<Integer, String> symTypes = diary.getSymptomTypes();
 
 //        for (TreeMap.Entry<Integer, String> entry : symTypes.entrySet()) {
 //            Log.d("map values", entry.getKey() + ": " + entry.getValue());

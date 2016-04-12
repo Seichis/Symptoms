@@ -122,8 +122,7 @@ public class SymptomFragment extends Fragment implements CoolDragAndDropGridView
 
         activeDiary = DiaryManager.getInstance().getActiveDiary();
         if (activeDiary != null) {
-            symptoms = new Gson().fromJson(activeDiary.getSymptomTypes(), new TypeToken<TreeMap<Integer, String>>() {
-            }.getType());
+            symptoms = activeDiary.getSymptomTypes();
             if (symptoms != null) {
                 mItems.clear();
                 Collections.sort(new ArrayList<>(symptoms.keySet()));

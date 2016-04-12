@@ -19,7 +19,6 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -48,23 +47,22 @@ public class MainActivity extends BaseActivity
         , SymptomFragment.OnSymptomFragmentInteractionListener, DiaryFragment.OnDiaryFragmentListener {
 
     private static final String TAG = "MainActivity";
-    private static final int REQUEST_COARSE_LOCATION = 1;
-    static MainActivity mainActivity = null;
+
+    static MainActivity mainActivity;
     private static SharedPreferences preferences;
     private static SharedPreferences.Editor editor;
-    public static final int REQUEST_FINE_LOCATION=0;
     Intent serviceIntent;
     FlicButton button;
+    View mLayout;
 
     public static MainActivity getInstance() {
         return mainActivity;
     }
 
-
     public FlicButton getButton() {
         return button;
     }
-    View mLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,16 +131,7 @@ public class MainActivity extends BaseActivity
             Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
         }
         preferences.edit().clear().apply();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) { // Permission was added in API Level 16
-//            if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) !=
-//                    PackageManager.PERMISSION_GRANTED) {
-//                requestFineLocationPermission();
-//            }
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) !=
-                    PackageManager.PERMISSION_GRANTED) {
-                requestCoarseLocationPermission();
-            }
-        }
+
     }
 
     private void checkRule(int rule) {
@@ -170,138 +159,8 @@ public class MainActivity extends BaseActivity
         }
     }
 
-//    private boolean isMyServiceRunning(Class<?> serviceClass) {
-//        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-//        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-//            if (serviceClass.getName().equals(service.service.getClassName())) {
-//                return true;
-//            }
-//        }
-//        return false;
-//    }
-
-//    /**
-//     * Requests the Camera permission.
-//     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
-//     * permission, otherwise it is requested directly.
-//     */
-//    private void requestFineLocationPermission() {
-//        Log.i(TAG, "Location permission has NOT been granted. Requesting permission.");
-//
-//        // BEGIN_INCLUDE(camera_permission_request)
-//        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-//                Manifest.permission.ACCESS_FINE_LOCATION)) {
-//            // Provide an additional rationale to the user if the permission was not granted
-//            // and the user would benefit from additional context for the use of the permission.
-//            // For example if the user has previously denied the permission.
-//            Log.i(TAG,
-//                    "Displaying camera permission rationale to provide additional context.");
-//            Snackbar.make(mLayout, R.string.permission_location_rationale,
-//                    Snackbar.LENGTH_INDEFINITE)
-//                    .setAction(R.string.ok, new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View view) {
-//                            ActivityCompat.requestPermissions(MainActivity.this,
-//                                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                                    REQUEST_FINE_LOCATION);
-//                        }
-//                    })
-//                    .show();
-//        } else {
-//
-//            // Camera permission has not been granted yet. Request it directly.
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-//                    REQUEST_FINE_LOCATION);
-//        }
-//        // END_INCLUDE(camera_permission_request)
-//    }
-/**
-     * Requests the Coarse location permission.
-     * If the permission has been denied previously, a SnackBar will prompt the user to grant the
-     * permission, otherwise it is requested directly.
-     */
-    private void requestCoarseLocationPermission() {
-        Log.i(TAG, "Location permission has NOT been granted. Requesting permission.");
-
-        // BEGIN_INCLUDE(camera_permission_request)
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            // Provide an additional rationale to the user if the permission was not granted
-            // and the user would benefit from additional context for the use of the permission.
-            // For example if the user has previously denied the permission.
-            Log.i(TAG,
-                    "Displaying camera permission rationale to provide additional context.");
-            Snackbar.make(mLayout, R.string.permission_location_rationale,
-                    Snackbar.LENGTH_INDEFINITE)
-                    .setAction(R.string.ok, new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            ActivityCompat.requestPermissions(MainActivity.this,
-                                    new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                                    REQUEST_COARSE_LOCATION);
-                        }
-                    })
-                    .show();
-        } else {
-
-            // Camera permission has not been granted yet. Request it directly.
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION},
-                    REQUEST_COARSE_LOCATION);
-        }
-    }
-
-    /**
-     * Callback received when a permissions request has been completed.
-     */
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-
-//        if (requestCode == REQUEST_FINE_LOCATION) {
-//            // BEGIN_INCLUDE(permission_result)
-//            // Received permission result for camera permission.
-//            Log.i(TAG, "Received response for Camera permission request.");
-//
-//            // Check if the only required permission has been granted
-//            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                // Camera permission has been granted, preview can be displayed
-//                Log.i(TAG, "Location permission has now been granted. Showing preview.");
-//                Snackbar.make(mLayout, R.string.permision_available_location,
-//                        Snackbar.LENGTH_SHORT).show();
-//            } else {
-//                Log.i(TAG, "Location permission was NOT granted.");
-//                Snackbar.make(mLayout, R.string.permissions_not_granted,
-//                        Snackbar.LENGTH_SHORT).show();
-//
-//            }
-//            // END_INCLUDE(permission_result)
-//
-//
-//        } else
-        if (requestCode == REQUEST_COARSE_LOCATION) {
-            // BEGIN_INCLUDE(permission_result)
-            // Received permission result for camera permission.
-            Log.i(TAG, "Received response for Camera permission request.");
-
-            // Check if the only required permission has been granted
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Camera permission has been granted, preview can be displayed
-                Log.i(TAG, "Location permission has now been granted. Showing preview.");
-                Snackbar.make(mLayout, R.string.permision_available_location,
-                        Snackbar.LENGTH_SHORT).show();
-            } else {
-                Log.i(TAG, "Location permission was NOT granted.");
-                Snackbar.make(mLayout, R.string.permissions_not_granted,
-                        Snackbar.LENGTH_SHORT).show();
-
-            }
-            // END_INCLUDE(permission_result)
 
 
-        }else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-    }
 
     @Override
     public void onActivityResult(final int requestCode, final int resultCode, final Intent data) {

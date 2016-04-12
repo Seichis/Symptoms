@@ -33,7 +33,6 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':fliclib')
     compile project(':movesAndroidAPI')
-    compile project(':yWeatherGetter4a')
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
@@ -50,4 +49,7 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:4.48'
     compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
     compile 'com.github.paolorotolo:appintro:3.4.0'
+    compile 'com.survivingwithandroid:weatherlib:1.6.0'
+    compile 'com.survivingwithandroid:weatherlib_okhttpclient:1.6.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
 }

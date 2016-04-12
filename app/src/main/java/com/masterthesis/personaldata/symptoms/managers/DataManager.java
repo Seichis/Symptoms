@@ -1,11 +1,13 @@
 package com.masterthesis.personaldata.symptoms.managers;
 
 import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
+import com.masterthesis.personaldata.symptoms.MainActivity;
 import com.midhunarmid.movesapi.MovesAPI;
 import com.midhunarmid.movesapi.MovesHandler;
 import com.midhunarmid.movesapi.activity.ActivityData;
@@ -17,19 +19,26 @@ import com.midhunarmid.movesapi.storyline.StorylineData;
 import com.midhunarmid.movesapi.summary.SummaryData;
 import com.midhunarmid.movesapi.summary.SummaryListData;
 import com.midhunarmid.movesapi.util.MovesStatus;
+import com.survivingwithandroid.weather.lib.WeatherClient;
+import com.survivingwithandroid.weather.lib.WeatherConfig;
+import com.survivingwithandroid.weather.lib.client.okhttp.WeatherDefaultClient;
+import com.survivingwithandroid.weather.lib.exception.WeatherLibException;
+import com.survivingwithandroid.weather.lib.exception.WeatherProviderInstantiationException;
+import com.survivingwithandroid.weather.lib.model.CurrentWeather;
+import com.survivingwithandroid.weather.lib.provider.forecastio.ForecastIOProviderType;
+import com.survivingwithandroid.weather.lib.provider.openweathermap.OpenweathermapProviderType;
+import com.survivingwithandroid.weather.lib.provider.yahooweather.YahooProviderType;
+import com.survivingwithandroid.weather.lib.request.WeatherRequest;
 
+import java.io.IOException;
 import java.util.ArrayList;
-
-import zh.wang.android.apis.yweathergetter4a.WeatherInfo;
-import zh.wang.android.apis.yweathergetter4a.YahooWeather;
-import zh.wang.android.apis.yweathergetter4a.YahooWeatherExceptionListener;
-import zh.wang.android.apis.yweathergetter4a.YahooWeatherInfoListener;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Konstantinos Michail on 2/14/2016.
  */
-public class DataManager implements YahooWeatherInfoListener,
-        YahooWeatherExceptionListener {
+public class DataManager {
 
     private static final String TAG2 = "Moves";
 
@@ -40,8 +49,9 @@ public class DataManager implements YahooWeatherInfoListener,
     private static final String TAG = "DataManager";
     private static DataManager dataManager = new DataManager();
     SymptomContext symptomContext;
+    WeatherClient client;
+    WeatherClient.ClientBuilder builder;
     private Context context;
-    private YahooWeather mYahooWeather;
     private MovesHandler<AuthData> authDialogHandler = new MovesHandler<AuthData>() {
         @Override
         public void onSuccess(AuthData arg0) {
@@ -190,6 +200,19 @@ public class DataManager implements YahooWeatherInfoListener,
     public void init(Context context) {
         this.context = context;
         initializeMoves();
+        builder = new WeatherClient.ClientBuilder();
+        WeatherConfig config = new WeatherConfig();
+//        config.unitSystem = WeatherConfig.UNIT_SYSTEM.M;
+        config.ApiKey="6f46363be8ca802a0ad1807cfc4614b9";// OpenweathermapProviderType
+//        config.ApiKey="fea0689d34004538e4db36555b89bf40";//Forecast IO
+//        config.ApiKey="dj0yJmk9WXM0UEN6SGtJUmlmJmQ9WVdrOVZsaHhSWFZvTmpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Mw--";
+        config.lang = "en"; // If you want to use english
+
+        try {
+            client = builder.attach(context).httpClient(WeatherDefaultClient.class).provider(new OpenweathermapProviderType()).config(config).build();
+        } catch (WeatherProviderInstantiationException e) {
+            e.printStackTrace();
+        }
     }
 
     private void initializeMoves() {
@@ -201,66 +224,73 @@ public class DataManager implements YahooWeatherInfoListener,
     }
 
     public void fetchWeatherData() {
+        final android.location.Location location = MainActivity.getInstance().getCurrentLocation();
+//        Log.i(TAG, location.toString());
+        client.getCurrentCondition(new WeatherRequest(location.getLongitude(), location.getLatitude()), new WeatherClient.WeatherEventListener() {
+            @Override
+            public void onWeatherRetrieved(CurrentWeather currentWeather) {
+                Geocoder geocoder;
+                symptomContext = new SymptomContext();
+                symptomContext.addObserver(SymptomManager.getInstance());
+                symptomContext.setAltitude(String.valueOf(location.getAltitude()));
+                List<Address> addresses;
+                geocoder = new Geocoder(context, Locale.ENGLISH);
 
-        mYahooWeather = YahooWeather.getInstance(10000, 10000, true);
-        mYahooWeather.setExceptionListener(dataManager);
-        searchByGPS();
+                try {
+                    addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+                    Address address = addresses.get(0);
+                    symptomContext.setAddress(address.getAddressLine(0)); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                    symptomContext.setCity(address.getLocality());
+                    symptomContext.setPostCode(address.getPostalCode());
+                    symptomContext.setCountry(address.getCountryName());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.i(TAG, "condition" + currentWeather.weather.currentCondition.getCondition());
+                Log.i(TAG, "description" + currentWeather.weather.currentCondition.getDescr());
+                Log.i(TAG, "heat index" + currentWeather.weather.currentCondition.getHeatIndex());
+                Log.i(TAG, "icon" + currentWeather.weather.currentCondition.getIcon());
+                Log.i(TAG, "solarRadiation" + currentWeather.weather.currentCondition.getSolarRadiation());
+                Log.i(TAG, "dewPoint" + currentWeather.weather.currentCondition.getDewPoint());
+                Log.i(TAG, "feels like" + currentWeather.weather.currentCondition.getFeelsLike());
+                Log.i(TAG, "humidity" + currentWeather.weather.currentCondition.getHumidity());
+                Log.i(TAG, "pressure" + currentWeather.weather.currentCondition.getPressure());
+                Log.i(TAG, "pressure ground level" + currentWeather.weather.currentCondition.getPressureGroundLevel());
+                Log.i(TAG, "pressure sea level" + currentWeather.weather.currentCondition.getPressureSeaLevel());
+                Log.i(TAG, "pressure trend" + currentWeather.weather.currentCondition.getPressureTrend());
+                Log.i(TAG, "UV" + currentWeather.weather.currentCondition.getUV());
+                Log.i(TAG, "visibility" + currentWeather.weather.currentCondition.getVisibility());
+                Log.i(TAG, "tostring" + currentWeather.weather.currentCondition.toString());
+
+                Log.i(TAG, "temperature" + currentWeather.weather.temperature.getTemp());
+                Log.i(TAG, "temperature max" + currentWeather.weather.temperature.getMaxTemp());
+                Log.i(TAG, "temperature min" + currentWeather.weather.temperature.getMinTemp());
+
+                Log.i(TAG, "clouds perc" + currentWeather.weather.clouds.getPerc());
+
+
+            }
+
+            @Override
+            public void onWeatherError(WeatherLibException e) {
+                Log.d("WL", "Weather Error - parsing data");
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onConnectionError(Throwable throwable) {
+                Log.d("WL", "Connection error");
+                throwable.printStackTrace();
+            }
+        });
+
     }
 
-    @Override
-    public void onFailConnection(final Exception e) {
-        symptomContext.notifyObservers(e);
-    }
-
-    @Override
-    public void onFailParsing(final Exception e) {
-        symptomContext.notifyObservers(e);
-    }
-
-    @Override
-    public void onFailFindLocation(final Exception e) {
-        symptomContext.notifyObservers(e);
-    }
-
-    @Override
-    public void gotWeatherInfo(WeatherInfo weatherInfo) {
-
-        if (weatherInfo != null) {
-            symptomContext = new SymptomContext();
-            symptomContext.addObserver(SymptomManager.getInstance());
-            symptomContext.setBaroPressureRising(weatherInfo.getAtmosphereRising());
-            symptomContext.setHumidity(weatherInfo.getAtmosphereHumidity());
-            symptomContext.setWindChill(weatherInfo.getWindChill());
-            symptomContext.setPressure(weatherInfo.getAtmospherePressure());
-            symptomContext.setTemperature(String.valueOf(weatherInfo.getCurrentTemp()));
-            symptomContext.setVisibility(weatherInfo.getAtmosphereVisibility());
-            symptomContext.setWindDirection(weatherInfo.getWindDirection());
-            symptomContext.setWindSpeed(weatherInfo.getWindSpeed());
-            symptomContext.setWeatherCondition(weatherInfo.getCurrentText());
-            symptomContext.setAddress(weatherInfo.getAddress().getAddressLine(0));
-            symptomContext.setCountry(weatherInfo.getLocationCountry());
-            symptomContext.setCity(weatherInfo.getLocationCity());
-
-            symptomContext.setLatLng(new LatLng(Double.parseDouble(weatherInfo.getConditionLat()), Double.parseDouble(weatherInfo.getConditionLon())));
-            symptomContext.setPostCode(weatherInfo.getAddress().getPostalCode());
-//            symptomContext.setPlaceType();
-            symptomContext.notifyObservers(symptomContext);
-
-        } else {
-            symptomContext.notifyObservers("Error");
-        }
-    }
 
     public SymptomContext getSymptomContext() {
         return symptomContext;
     }
 
-    private void searchByGPS() {
-        mYahooWeather.setNeedDownloadIcons(true);
-        mYahooWeather.setUnit(YahooWeather.UNIT.CELSIUS);
-        mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
-        mYahooWeather.queryYahooWeatherByGPS(context, this);
-    }
 
     public void movesAuthenticate(AppCompatActivity activity) {
         MovesAPI.authenticate(authDialogHandler, activity);
