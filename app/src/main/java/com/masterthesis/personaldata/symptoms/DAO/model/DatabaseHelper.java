@@ -16,13 +16,25 @@ import com.j256.ormlite.table.TableUtils;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME = "symptoms_first.db";
-    private static final int DATABASE_VERSION = 31;
+    private static final int DATABASE_VERSION = 32;
     private final String LOG_NAME = getClass().getName();
     private Dao<Diary, Integer> diaryDAO;
     private Dao<Symptom, Integer> symptomDAO;
+    private Dao<Patient, Integer> patientDAO;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public Dao<Patient, Integer> getPatientDAO() {
+        if (patientDAO == null) {
+            try {
+                patientDAO = getDao(Patient.class);
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return patientDAO;
     }
 
     public Dao<Diary, Integer> getDiaryDAO() throws SQLException {
@@ -52,6 +64,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.createTable(connectionSource, Diary.class);
             TableUtils.createTable(connectionSource, Symptom.class);
+            TableUtils.createTable(connectionSource, Patient.class);
         } catch (SQLException e) {
             Log.e(LOG_NAME, "Could not create new table for Diary and symptom", e);
         } catch (java.sql.SQLException e) {
@@ -65,6 +78,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
         try {
             TableUtils.dropTable(connectionSource, Diary.class, true);
             TableUtils.dropTable(connectionSource, Symptom.class, true);
+            TableUtils.dropTable(connectionSource, Patient.class, true);
             onCreate(sqLiteDatabase, connectionSource);
         } catch (SQLException e) {
             Log.e(LOG_NAME, "Could not upgrade the table for Thing", e);

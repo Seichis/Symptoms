@@ -50,33 +50,4 @@ public class MovesDataStoryline extends BaseDAO {
         this.segments = segments;
     }
 
-//    @Override
-//    public Integer getId() {
-//        return null;
-//    }
-//
-//    @Override
-//    public void setId(Integer id) {
-//
-//    }
-//
-//    @Override
-//    public Timestamp getUpdatedAt() {
-//        return updatedAt;
-//    }
-//
-//    @Override
-//    public void setUpdatedAt(Timestamp updatedAt) {
-//
-//    }
-//
-//    @Override
-//    public Timestamp getCreatedAt() {
-//        return createdAt;
-//    }
-//
-//    @Override
-//    public void setCreatedAt(Timestamp createdAt) {
-//
-//    }
 }

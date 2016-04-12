@@ -1,20 +1,12 @@
 package com.masterthesis.personaldata.symptoms;
 
-import android.Manifest;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -31,11 +23,10 @@ import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
+import com.masterthesis.personaldata.symptoms.welcomewizard.WelcomeMain;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItems;
-
-import java.util.Map;
 
 import io.flic.lib.FlicBroadcastReceiverFlags;
 import io.flic.lib.FlicButton;
@@ -46,14 +37,11 @@ public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.OnHomeFragmentInteractionListener
         , SymptomFragment.OnSymptomFragmentInteractionListener, DiaryFragment.OnDiaryFragmentListener {
 
-    private static final String TAG = "MainActivity";
+    private static final String TAG = "WelcomeMain";
 
     static MainActivity mainActivity;
-    private static SharedPreferences preferences;
-    private static SharedPreferences.Editor editor;
     Intent serviceIntent;
     FlicButton button;
-    View mLayout;
 
     public static MainActivity getInstance() {
         return mainActivity;
@@ -68,7 +56,6 @@ public class MainActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mainActivity = this;
-        mLayout = findViewById(R.id.content_main_layout);
 
 
         if (getIntent().getExtras() != null) {
@@ -123,15 +110,7 @@ public class MainActivity extends BaseActivity
 
         DiaryManager diaryManager = DiaryManager.getInstance();
         diaryManager.init(this);
-
-        preferences = getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
-
-        Map<String, ?> allEntries = preferences.getAll();
-        for (Map.Entry<String, ?> entry : allEntries.entrySet()) {
-            Log.d("map values", entry.getKey() + ": " + entry.getValue().toString());
-        }
-        preferences.edit().clear().apply();
-
+        startActivity(new Intent(this, ProfileManagementActivity.class));
     }
 
     private void checkRule(int rule) {
@@ -158,8 +137,6 @@ public class MainActivity extends BaseActivity
                 break;
         }
     }
-
-
 
 
     @Override

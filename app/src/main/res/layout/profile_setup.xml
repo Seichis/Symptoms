@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.redbooth.WelcomePageLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/welcome_page"
+    tools:background="@color/page1">
+
+    <com.masterthesis.personaldata.symptoms.welcomewizard.RectangleWithCapCircleView
+        android:id="@+id/semicircle_profile_setup"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:view_behavior="com.masterthesis.personaldata.symptoms.welcomewizard.AnimationFillWithColor"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin">
+        >
+
+        <TextView
+        android:id="@+id/profile_setup_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="30sp"
+        android:text="@string/manage_profile" />
+
+
+        <ImageButton
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:src="@drawable/avatar_maggie2"
+            android:scaleType="centerCrop"
+            android:id="@+id/profile_pic_button"
+            android:background="@android:color/transparent"/>
+
+        <TextView
+            android:id="@+id/profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:text="@string/profile_name" />
+        <include layout="@layout/fragment_diary"/>
+        <include layout="@layout/fragment_symptom"/>
+    </LinearLayout>
+
+
+
+</com.redbooth.WelcomePageLayout>

@@ -93,4 +93,6 @@
     <string name="ok">Permit</string>
     <string name="permision_available_location">Permission to get your location is granted</string>
     <string name="permissions_not_granted">Permission to access this device location was denied.</string>
+    <string name="manage_profile">Edit your profile</string>
+    <string name="profile_name">Hi %1$s</string>
 </resources>

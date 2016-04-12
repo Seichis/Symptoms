@@ -1,9 +1,6 @@
 package com.masterthesis.personaldata.symptoms.fragments;
 
 import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -17,27 +14,21 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import com.j256.ormlite.dao.ForeignCollection;
-import com.masterthesis.personaldata.symptoms.Constants;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.R;
 import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
 import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItem;
 import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItemAdapter;
-import com.masterthesis.personaldata.symptoms.dragNdrop.Item;
-import com.masterthesis.personaldata.symptoms.dragNdrop.ItemAdapter;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SimpleScrollingStrategy;
 import com.masterthesis.personaldata.symptoms.dragNdrop.SpanVariableGridView;
-import com.masterthesis.personaldata.symptoms.intro.SecondLayoutIntro;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.TreeMap;
@@ -111,7 +102,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
 //        startActivity(intent);
 
         List<Diary> sameNameDiaries = null;
-        String input=inputDiaryNameEditText.getText().toString();
+        String input = inputDiaryNameEditText.getText().toString();
         try {
             sameNameDiaries = DiaryManager.getInstance().searchByName(inputDiaryNameEditText.getText().toString());
         } catch (SQLException e) {
@@ -158,7 +149,14 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
 //                    Log.i(TAG, "symptoms" + d.getSymptoms().size());
                     TreeMap<Integer, String> symTypes = d.getSymptomTypes();
                     Log.i(TAG, String.valueOf(symTypes));
-                    Log.i(TAG, String.valueOf(SymptomManager.getInstance().getSymptomsByDiary(d)));
+                    HashMap<String, List<Symptom>> symptomsMap = SymptomManager.getInstance().getSymptomsByDiary(d);
+                    for (List<Symptom> slist : symptomsMap.values()) {
+                        for (Symptom s : slist) {
+                            Log.i(TAG, String.valueOf(s.getCreatedAt()));
+                            Log.i(TAG, String.valueOf(s.getUpdatedAt()));
+                        }
+                    }
+                    Log.i(TAG, String.valueOf(symptomsMap));
                     Log.i(TAG, String.valueOf(SymptomManager.getInstance().getAllSymptoms()));
                 }
             }
@@ -242,13 +240,13 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     @Override
     public void onDropItem(int from, int to) {
         if (from != to) {
-            Log.i(TAG,"on drop from "+from+" to "+to);
+            Log.i(TAG, "on drop from " + from + " to " + to);
             mItems.add(to, mItems.remove(from));
             mItemAdapter.notifyDataSetChanged();
         }
-        if (to==0){
-            Log.i(TAG,"on drop from "+diaries.get(from).getName()+" to "+diaries.get(to).getName());
-            Collections.swap(diaries,to,from);
+        if (to == 0) {
+            Log.i(TAG, "on drop from " + diaries.get(from).getName() + " to " + diaries.get(to).getName());
+            Collections.swap(diaries, to, from);
         }
     }
 
