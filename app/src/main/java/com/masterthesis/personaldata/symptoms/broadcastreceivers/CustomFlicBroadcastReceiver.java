@@ -20,11 +20,9 @@ import io.flic.lib.FlicManager;
 public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
     static long tStart;
     static long tEnd;
-    private static SharedPreferences preferences;
-
     //    static long measureEndTime=10000;
     static String TAG = "CustomFlicBroadcastReceiver";
-
+    private static SharedPreferences preferences;
 
     @Override
     protected void onRequestAppCredentials(Context context) {
@@ -57,7 +55,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
 
         if (isDown) {
             if (!Utils.isMyServiceRunning(BackgroundService.class, context)) {
-                Log.i(TAG,"service null, button down");
+                Log.i(TAG, "service null, button down");
                 //        myIntent.
 //                context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
             } else {
@@ -67,7 +65,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
         } else if (isUp) {
             if (!Utils.isMyServiceRunning(BackgroundService.class, context)) {
                 //        myIntent.
-                Log.i(TAG,"service null, button up");
+                Log.i(TAG, "service null, button up");
 
                 context.startActivity(new Intent(context, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
             } else {
@@ -84,7 +82,7 @@ public class CustomFlicBroadcastReceiver extends FlicBroadcastReceiver {
 
     }
 
-    private void getSymptomOrder(Context context){
+    private void getSymptomOrder(Context context) {
         preferences = context.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
 
     }

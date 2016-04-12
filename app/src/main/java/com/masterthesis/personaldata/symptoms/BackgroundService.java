@@ -26,8 +26,6 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> {
     static Notification notification;
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
-//    SharedPreferences preferences;
-//    SharedPreferences.Editor editor;
     MainActivity mainActivity = null;
 
     AlarmBReceiver alarmBReceiver = null;

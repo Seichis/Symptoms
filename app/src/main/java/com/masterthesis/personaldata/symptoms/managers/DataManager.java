@@ -204,7 +204,6 @@ public class DataManager implements YahooWeatherInfoListener,
 
         mYahooWeather = YahooWeather.getInstance(10000, 10000, true);
         mYahooWeather.setExceptionListener(dataManager);
-        mYahooWeather.setSearchMode(YahooWeather.SEARCH_MODE.GPS);
         searchByGPS();
     }
 

@@ -17,8 +17,10 @@ import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import com.j256.ormlite.dao.ForeignCollection;
 import com.masterthesis.personaldata.symptoms.Constants;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
+import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.R;
 import com.masterthesis.personaldata.symptoms.dragNdrop.CoolDragAndDropGridView;
 import com.masterthesis.personaldata.symptoms.dragNdrop.DiaryItem;
@@ -57,8 +59,6 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
     private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "DiaryFragment";
     public static List<Diary> diaries = new ArrayList<>();
-    private static SharedPreferences preferences;
-    private static SharedPreferences.Editor editor;
     DiaryItemAdapter mItemAdapter;
     DiaryManager diaryManager;
     //    CoolDragAndDropGridView mCoolDragAndDropGridView;
@@ -150,7 +150,15 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
                     mItems.add(new DiaryItem(R.drawable.ic_local_search_airport_highlighted, 3, d.getName(), d.getDescription()));
                     Log.i(TAG, "name" + d.getName());
                     Log.i(TAG, "description" + d.getDescription());
-                    Log.i(TAG, "symptoms" + d.getSymptoms().isEmpty());
+                    Log.i(TAG, "symptoms" + d.getSymptoms().toString());
+                    ForeignCollection<Symptom> symptoms=d.getSymptoms();
+                    for (Symptom s:symptoms){
+                        Log.i(TAG,"context"+s.getContext());
+                        Log.i(TAG,"diary"+s.getDiary());
+                        Log.i(TAG,"type"+s.getSymptomType());
+                        Log.i(TAG,"intensity"+s.getIntensity());
+
+                    }
 
                 }
             }
@@ -179,7 +187,6 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
         mCoolDragAndDropGridView.setDragAndDropListener(this);
         mCoolDragAndDropGridView.setOnItemLongClickListener(this);
         mItemAdapter.notifyDataSetChanged();
-        preferences = getContext().getSharedPreferences(Constants.PACKAGE_NAME, Context.MODE_PRIVATE);
 
         return view;
     }

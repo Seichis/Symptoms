@@ -86,4 +86,11 @@
 
     <!-- App intro-->
     <string name="skip">Y U DO DIS TO ME?</string>
+
+    <string name="speech_prompt">Say something…</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="permission_location_rationale">We need to save your location so that we can combine information about the context in which these symptoms occured and provide you with better treatment</string>
+    <string name="ok">Permit</string>
+    <string name="permision_available_location">Permission to get your location is granted</string>
+    <string name="permissions_not_granted">Permission to access this device location was denied.</string>
 </resources>

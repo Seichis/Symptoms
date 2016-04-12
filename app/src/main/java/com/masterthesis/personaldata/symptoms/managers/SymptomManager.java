@@ -167,8 +167,11 @@ Diary diary;
             Log.i(TAG, data.toString());
             if (data.toString().contains("Network")) {
                 // No network available do not retry to get info
+                Log.i(TAG, "Network error");
 
             } else {
+                Log.i(TAG, "error"+ data.toString());
+
                 isWeatherException = true;
             }
 
