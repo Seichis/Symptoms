@@ -1,3 +1,2 @@
 include ':app', ':fliclib'
 include ':movesAndroidAPI'
-include ':yWeatherGetter4a'
