@@ -6,6 +6,8 @@ import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.masterthesis.personaldata.symptoms.BackgroundService;
 import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
 import com.masterthesis.personaldata.symptoms.MainActivity;
 import com.midhunarmid.movesapi.MovesAPI;
@@ -25,9 +27,7 @@ import com.survivingwithandroid.weather.lib.client.okhttp.WeatherDefaultClient;
 import com.survivingwithandroid.weather.lib.exception.WeatherLibException;
 import com.survivingwithandroid.weather.lib.exception.WeatherProviderInstantiationException;
 import com.survivingwithandroid.weather.lib.model.CurrentWeather;
-import com.survivingwithandroid.weather.lib.provider.forecastio.ForecastIOProviderType;
 import com.survivingwithandroid.weather.lib.provider.openweathermap.OpenweathermapProviderType;
-import com.survivingwithandroid.weather.lib.provider.yahooweather.YahooProviderType;
 import com.survivingwithandroid.weather.lib.request.WeatherRequest;
 
 import java.io.IOException;
@@ -47,6 +47,7 @@ public class DataManager {
     private static final String CLIENT_REDIRECTURL = "http://dfuinspector.com/";
     private static final String CLIENT_SCOPES = "activity location";
     private static final String TAG = "DataManager";
+    BackgroundService backgroundService;
     private static DataManager dataManager = new DataManager();
     SymptomContext symptomContext;
     WeatherClient client;
@@ -203,11 +204,11 @@ public class DataManager {
         builder = new WeatherClient.ClientBuilder();
         WeatherConfig config = new WeatherConfig();
 //        config.unitSystem = WeatherConfig.UNIT_SYSTEM.M;
-        config.ApiKey="6f46363be8ca802a0ad1807cfc4614b9";// OpenweathermapProviderType
+        config.ApiKey = "6f46363be8ca802a0ad1807cfc4614b9";// OpenweathermapProviderType
 //        config.ApiKey="fea0689d34004538e4db36555b89bf40";//Forecast IO
 //        config.ApiKey="dj0yJmk9WXM0UEN6SGtJUmlmJmQ9WVdrOVZsaHhSWFZvTmpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Mw--";
         config.lang = "en"; // If you want to use english
-
+        backgroundService=BackgroundService.getInstance();
         try {
             client = builder.attach(context).httpClient(WeatherDefaultClient.class).provider(new OpenweathermapProviderType()).config(config).build();
         } catch (WeatherProviderInstantiationException e) {
@@ -224,8 +225,13 @@ public class DataManager {
     }
 
     public void fetchWeatherData() {
-        final android.location.Location location = MainActivity.getInstance().getCurrentLocation();
+        final android.location.Location location=backgroundService.getCurrentLocation();
+//        if (backgroundService.getCurrentLocation() == null) {
+//            location = MainActivity.getInstance().getCurrentLocation();
+//        } else {
+//            location = MainActivity.getInstance().getCurrentLocation();
 //        Log.i(TAG, location.toString());
+//        }
         client.getCurrentCondition(new WeatherRequest(location.getLongitude(), location.getLatitude()), new WeatherClient.WeatherEventListener() {
             @Override
             public void onWeatherRetrieved(CurrentWeather currentWeather) {
@@ -246,6 +252,9 @@ public class DataManager {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+                symptomContext.setLatLng(new LatLng(location.getLatitude(), location.getLongitude()));
+                Log.i(TAG, "setLatLng" + String.valueOf(new LatLng(location.getLatitude(), location.getLongitude())));
+
                 Log.i(TAG, "condition" + currentWeather.weather.currentCondition.getCondition());
                 Log.i(TAG, "description" + currentWeather.weather.currentCondition.getDescr());
                 Log.i(TAG, "heat index" + currentWeather.weather.currentCondition.getHeatIndex());

@@ -1,6 +1,11 @@
 package com.masterthesis.personaldata.symptoms.DAO.model;
 
+import android.util.Log;
+
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.maps.android.clustering.ClusterItem;
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 
@@ -17,23 +22,20 @@ public class Symptom extends BaseDAO {
     public static final String SYMPTOM_CONTEXT_FIELD_NAME = "context";
     public static final String INTENSITY_FIELD_NAME = "intensity";
     public static final String DIARY_ID_FIELD_NAME = "diary_id";
-
-    public Symptom(){
-    }
-
-    public Symptom(Timestamp createdAt){
-        super(createdAt);
-    }
-
     @DatabaseField(columnName = SYMPTOM_TYPE_FIELD_NAME, canBeNull = false)
     String symptomType;
     @DatabaseField(columnName = SYMPTOM_CONTEXT_FIELD_NAME)
-    String context = null;
+    String context = "";
     @DatabaseField(columnName = INTENSITY_FIELD_NAME, canBeNull = false)
     double intensity;
-
-    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME,canBeNull = false)
+    @DatabaseField(foreign = true, foreignAutoRefresh = true, columnName = DIARY_ID_FIELD_NAME, canBeNull = false)
     private Diary diary;
+    public Symptom() {
+    }
+
+    public Symptom(Timestamp createdAt) {
+        super(createdAt);
+    }
 
 //    public Symptom(String _symptomType) {
 //        this.symptomType = _symptomType;
@@ -100,21 +102,21 @@ public class Symptom extends BaseDAO {
     }
 
     public void setContext(String context) {
-        this.context = context;
+        this.context=context;
     }
 
-    public void setContext(SymptomContext context) {
-        Gson gson = new Gson();
-        String sContext = gson.toJson(context, SymptomContext.class);
-        this.context = sContext;
-    }
 
     public boolean isValid() {
-        if (this.context == null) {
+        if (this.context.isEmpty()) {
             return false;
         } else {
             return true;
         }
+    }
+
+    public JsonObject getSymptomContext() {
+        Log.i("Symptom context",context);
+        return new Gson().fromJson(context, JsonObject.class);
     }
 
 }

@@ -8,6 +8,7 @@ import com.j256.ormlite.field.ForeignCollectionField;
 import com.j256.ormlite.table.DatabaseTable;
 
 import java.sql.Timestamp;
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -99,6 +100,5 @@ public class Diary extends BaseDAO {
     public void setDescription(String description) {
         this.description = description;
     }
-
 
 }

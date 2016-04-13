@@ -7,7 +7,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
@@ -82,24 +85,26 @@ public class SymptomManager implements Observer {
                 }
 
                 public void onFinish() {
-                    Runnable r = new Runnable() {
-                        @Override
-                        public void run() {
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    Gson gson = new Gson();
-                                    dataManager.getSymptomContext().deleteObservers();
-                                    String sContext = gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
-                                    Log.i(TAG, "Symptom context: " + sContext);
-                                    symptom.setContext(sContext);
+//                    Runnable r = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//
+//
+//                                }
+//                            });
+//                        }
+//                    };
+//                    new Thread(r).start();
 
-                                }
-                            });
-                        }
-                    };
-                    new Thread(r).start();
+                    Gson gson = new Gson();
+                    dataManager.getSymptomContext().deleteObservers();
+                    String sContext = gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
 
+                    symptom.setContext(sContext);
+                    Log.i(TAG, "Symptom context: " + symptom.getContext());
 
                     symptom.setIntensity(Collections.max(symptomInputList));
                     diary = DiaryManager.getInstance().getActiveDiary();
@@ -215,4 +220,27 @@ public class SymptomManager implements Observer {
         }
         return symptomsMap;
     }
+
+    public ArrayList<LatLng> getSymptomslatLonByType(String type){
+        ArrayList<LatLng> mlist=new ArrayList<>();
+        List<Symptom> symptoms;
+        try {
+            symptoms=dbHelper.getSymptomDAO().queryForEq("type",type);
+            for (Symptom s:symptoms){
+                JsonObject ctx=s.getSymptomContext().get("latLng").getAsJsonObject();
+                LatLng point=new LatLng(Double.parseDouble(ctx.get("latitude").toString()),Double.parseDouble(ctx.get("longitude").toString()));
+                mlist.add(point);
+//                mlist.add(new LatLng(55.33,23.32));
+                Log.i(TAG,"context"+String.valueOf(s.getContext()));
+                Log.i(TAG,"type"+String.valueOf(s.getSymptomType()));
+                Log.i(TAG,"intensity"+String.valueOf(s.getIntensity()));
+            }
+            return mlist;
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
 }

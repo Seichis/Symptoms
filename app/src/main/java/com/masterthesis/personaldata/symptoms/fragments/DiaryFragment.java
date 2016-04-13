@@ -152,8 +152,9 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
                     HashMap<String, List<Symptom>> symptomsMap = SymptomManager.getInstance().getSymptomsByDiary(d);
                     for (List<Symptom> slist : symptomsMap.values()) {
                         for (Symptom s : slist) {
-                            Log.i(TAG, String.valueOf(s.getCreatedAt()));
-                            Log.i(TAG, String.valueOf(s.getUpdatedAt()));
+                            Log.i(TAG,"created"+ String.valueOf(s.getCreatedAt()));
+                            Log.i(TAG,"updated" + String.valueOf(s.getUpdatedAt()));
+                            Log.i(TAG,"context " + String.valueOf(s.getContext()));
                         }
                     }
                     Log.i(TAG, String.valueOf(symptomsMap));

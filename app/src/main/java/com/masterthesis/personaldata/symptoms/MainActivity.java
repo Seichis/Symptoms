@@ -23,6 +23,7 @@ import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 import com.masterthesis.personaldata.symptoms.fragments.HomeFragment;
 import com.masterthesis.personaldata.symptoms.fragments.SymptomFragment;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
+import com.masterthesis.personaldata.symptoms.maps.MainMapsActivity;
 import com.masterthesis.personaldata.symptoms.welcomewizard.WelcomeMain;
 import com.ogaclejapan.smarttablayout.SmartTabLayout;
 import com.ogaclejapan.smarttablayout.utils.v4.FragmentPagerItemAdapter;
@@ -108,9 +109,9 @@ public class MainActivity extends BaseActivity
             Log.i(TAG, "Service running");
         }
 
-        DiaryManager diaryManager = DiaryManager.getInstance();
-        diaryManager.init(this);
-        startActivity(new Intent(this, ProfileManagementActivity.class));
+
+        startActivity(new Intent(this, MainMapsActivity.class));
+//        startActivity(new Intent(this, ProfileManagementActivity.class));
     }
 
     private void checkRule(int rule) {
