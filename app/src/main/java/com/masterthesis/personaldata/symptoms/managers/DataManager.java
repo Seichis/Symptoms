@@ -31,7 +31,9 @@ import com.survivingwithandroid.weather.lib.provider.openweathermap.Openweatherm
 import com.survivingwithandroid.weather.lib.request.WeatherRequest;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -320,6 +322,14 @@ public class DataManager {
     public void movesSummarySingleDay(String day) {
         MovesAPI.getSummary_SingleDay(summaryHandler, day, null);
     }
+/**
+     */
+    public void movesSummaryToday() {
+        String format="yyyyMMdd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        String day=sdf.format(new Date());
+        MovesAPI.getSummary_SingleDay(summaryHandler, day, null);
+    }
 
     /**
      * @param week Format example "2016-W06"
@@ -356,6 +366,16 @@ public class DataManager {
      * @param trp To return track points or not
      */
     public void movesStorylineDay(String day, boolean trp) {
+        MovesAPI.getStoryline_SingleDay(storylineHandler, day, null, trp);
+    }
+
+    /**
+     * @param trp To return track points or not
+     */
+    public void movesStorylineToday(boolean trp) {
+        String format="yyyyMMdd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        String day=sdf.format(new Date());
         MovesAPI.getStoryline_SingleDay(storylineHandler, day, null, trp);
     }
 
@@ -428,5 +448,11 @@ public class DataManager {
     }
 
 
+    public void movesActivitiesToday() {
+        String format="yyyyMMdd";
+        SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
+        String day=sdf.format(new Date());
+        MovesAPI.getActivities_SingleDay(storylineHandler, day, null);
+    }
 }
 

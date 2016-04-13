@@ -73,7 +73,8 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
                 dataManager.movesProfile();
                 break;
             case 4: // Get Summary Day
-                dataManager.movesSummarySingleDay("20160214");
+//                dataManager.movesSummarySingleDay("20160214");
+                dataManager.movesSummaryToday();
                 break;
             case 5: // Get Summary Week
                 dataManager.movesSummaryWeek("2016-W06");
@@ -88,7 +89,8 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
                 dataManager.movesSummaryPastDays("31");
                 break;
             case 10: // Get Storyline Day
-                dataManager.movesStorylineDay("20160214", true);
+                dataManager.movesStorylineToday(true);
+//                dataManager.movesStorylineDay("20160214", true);
                 break;
             case 11: // Get Storyline Week
                 dataManager.movesStorylineWeek("2016-W06", true);
@@ -103,7 +105,8 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
                 dataManager.movesStorylinePastDays("7", true);
                 break;
             case 16: // Get Activities Day
-                dataManager.movesActivitiesDay("20160214");
+//                dataManager.movesActivitiesDay("20160214");
+                dataManager.movesActivitiesToday();
                 break;
             case 17: // Get Activities Week
                 dataManager.movesActivitiesWeek("2016-W06");
