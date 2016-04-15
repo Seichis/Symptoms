@@ -5,62 +5,84 @@ import android.app.Dialog;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.ActivityRecognition;
+import com.google.android.gms.location.DetectedActivity;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
+import com.google.common.base.Functions;
+import com.google.common.collect.EvictingQueue;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Ordering;
 import com.j256.ormlite.android.apptools.OrmLiteBaseService;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
+import com.masterthesis.personaldata.symptoms.activityrecognition.DetectedActivitiesIntentService;
 import com.masterthesis.personaldata.symptoms.broadcastreceivers.AlarmBReceiver;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Queue;
 
 import io.flic.lib.FlicAppNotInstalledException;
 import io.flic.lib.FlicManager;
 import io.flic.lib.FlicManagerInitializedCallback;
 
 public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implements LocationListener,
-        GoogleApiClient.ConnectionCallbacks {
-
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
     private final static String TAG = BackgroundService.class.getName();
     private static final int notif_id = 1337;
     static Notification notification;
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
+    protected GoogleApiClient mGoogleApiClient;
+    EvictingQueue<String> activityQueue;
     MainActivity mainActivity = null;
     AlarmBReceiver alarmBReceiver = null;
     AlertDialog alert;
-
-    public Location getCurrentLocation() {
-        return currentLocation;
-    }
-
     private Location currentLocation;
     private GoogleApiClient locationClient;
+    protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
 
     public BackgroundService() {
     }
 
     public static BackgroundService getInstance() {
         return backgroundService;
+    }
+
+    public Location getCurrentLocation() {
+        return currentLocation;
     }
 
     @Override
@@ -71,9 +93,56 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mainActivity = MainActivity.getInstance();
+        activityQueue = EvictingQueue.create(3);
 
         backgroundService = this;
         runAsForeground();
+        flicSetup();
+        buildAlertMessageNoGps();
+        DiaryManager diaryManager = DiaryManager.getInstance();
+        diaryManager.init(backgroundService);
+        SymptomManager symptomManager = SymptomManager.getInstance();
+        symptomManager.init(backgroundService);
+        buildLocationClient();
+        setupActivityRecognition();
+
+        return START_NOT_STICKY;
+    }
+
+    private void setupActivityRecognition() {
+        buildGoogleApiClient();
+
+        mGoogleApiClient.connect();
+        mBroadcastReceiver = new ActivityDetectionBroadcastReceiver();
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mBroadcastReceiver,
+                new IntentFilter(Constants.BROADCAST_ACTION));
+
+    }
+
+    /**
+     * Builds a GoogleApiClient. Uses the {@code #addApi} method to request the
+     * ActivityRecognition API.
+     */
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(ActivityRecognition.API)
+                .build();
+    }
+
+    private void buildLocationClient() {
+        // Create a new location client, using the enclosing class to handle callbacks.
+        locationClient = new GoogleApiClient.Builder(this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(this)
+                .build();
+        locationClient.connect();
+
+    }
+
+    private void flicSetup() {
         FlicManager.setAppCredentials("59eab426-39a4-4457-8e7d-2f67f9733d54", "d0ef92f6-a494-4f3d-96c0-841c6b434909", "ScaleMeasurement");
         if (mainActivity != null) {
             if (mainActivity.getButton() == null) {
@@ -90,21 +159,6 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
                 }
             }
         }
-        buildAlertMessageNoGps();
-        DiaryManager diaryManager = DiaryManager.getInstance();
-        diaryManager.init(backgroundService);
-        SymptomManager symptomManager = SymptomManager.getInstance();
-        symptomManager.init(backgroundService);
-
-
-        // Create a new location client, using the enclosing class to handle callbacks.
-        locationClient = new GoogleApiClient.Builder(this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(this)
-                .build();
-        locationClient.connect();
-
-        return START_NOT_STICKY;
     }
 
     @Override
@@ -115,6 +169,8 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
             locationClient.disconnect();
 
         }
+        removeActivityUpdates();
+        mGoogleApiClient.disconnect();
         super.onDestroy();
     }
 
@@ -161,12 +217,96 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        currentLocation = getLocation();
+        if (locationClient.isConnected()) {
+            currentLocation = getLocation();
+        }
+        if (mGoogleApiClient.isConnected()){
+            requestActivityUpdates();
+        }
+
     }
 
+
+    /**
+     * Registers for activity recognition updates using
+     * {@link com.google.android.gms.location.ActivityRecognitionApi#requestActivityUpdates} which
+     * returns a {@link com.google.android.gms.common.api.PendingResult}. Since this activity
+     * implements the PendingResult interface, the activity itself receives the callback, and the
+     * code within {@code onResult} executes. Note: once {@code requestActivityUpdates()} completes
+     * successfully, the {@code DetectedActivitiesIntentService} starts receiving callbacks when
+     * activities are detected.
+     */
+    public void requestActivityUpdates() {
+        ActivityRecognition.ActivityRecognitionApi.requestActivityUpdates(
+                mGoogleApiClient,
+                Constants.DETECTION_INTERVAL_IN_MILLISECONDS,
+                getActivityDetectionPendingIntent()
+        ).setResultCallback(this);
+    }
+
+    /**
+     * Removes activity recognition updates using
+     * {@link com.google.android.gms.location.ActivityRecognitionApi#removeActivityUpdates} which
+     * returns a {@link com.google.android.gms.common.api.PendingResult}. Since this activity
+     * implements the PendingResult interface, the activity itself receives the callback, and the
+     * code within {@code onResult} executes. Note: once {@code removeActivityUpdates()} completes
+     * successfully, the {@code DetectedActivitiesIntentService} stops receiving callbacks about
+     * detected activities.
+     */
+    public void removeActivityUpdates() {
+        if (!mGoogleApiClient.isConnected()) {
+            Toast.makeText(this, getString(R.string.not_connected), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        // Remove all activity updates for the PendingIntent that was used to request activity
+        // updates.
+        ActivityRecognition.ActivityRecognitionApi.removeActivityUpdates(
+                mGoogleApiClient,
+                getActivityDetectionPendingIntent()
+        ).setResultCallback(this);
+    }
+
+    /**
+     * Runs when the result of calling requestActivityUpdates() and removeActivityUpdates() becomes
+     * available. Either method can complete successfully or with an error.
+     *
+     * @param status The Status returned through a PendingIntent when requestActivityUpdates()
+     *               or removeActivityUpdates() are called.
+     */
+    public void onResult(Status status) {
+        if (status.isSuccess()) {
+            // Toggle the status of activity updates requested, and save in shared preferences.
+            boolean requestingUpdates = !getUpdatesRequestedState();
+            setUpdatesRequestedState(requestingUpdates);
+
+            // Update the UI. Requesting activity updates enables the Remove Activity Updates
+            // button, and removing activity updates enables the Add Activity Updates button.
+
+            Toast.makeText(
+                    this,
+                    getString(requestingUpdates ? R.string.activity_updates_added :
+                            R.string.activity_updates_removed),
+                    Toast.LENGTH_SHORT
+            ).show();
+        } else {
+            Log.e(TAG, "Error adding or removing activity detection: " + status.getStatusMessage());
+        }
+    }
+
+    /**
+     * Gets a PendingIntent to be sent for each activity detection.
+     */
+    private PendingIntent getActivityDetectionPendingIntent() {
+        Intent intent = new Intent(this, DetectedActivitiesIntentService.class);
+
+        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
+        // requestActivityUpdates() and removeActivityUpdates().
+        return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
     @Override
     public void onConnectionSuspended(int i) {
-
+        mGoogleApiClient.connect();
+        locationClient.connect();
     }
 
     @Override
@@ -265,6 +405,11 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
         }
     }
 
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
     /*
      * Define a DialogFragment to display the error dialog generated in showErrorDialog.
      */
@@ -297,6 +442,77 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
             return mDialog;
         }
     }
+
+    /**
+     * Retrieves a SharedPreference object used to store or read values in this app. If a
+     * preferences file passed as the first argument to {@link #getSharedPreferences}
+     * does not exist, it is created when {@link SharedPreferences.Editor} is used to commit
+     * data.
+     */
+    private SharedPreferences getSharedPreferencesInstance() {
+        return getSharedPreferences(Constants.SHARED_PREFERENCES_NAME, MODE_PRIVATE);
+    }
+
+    /**
+     * Retrieves the boolean from SharedPreferences that tracks whether we are requesting activity
+     * updates.
+     */
+    private boolean getUpdatesRequestedState() {
+        return getSharedPreferencesInstance()
+                .getBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, false);
+    }
+
+    /**
+     * Sets the boolean in SharedPreferences that tracks whether we are requesting activity
+     * updates.
+     */
+    private void setUpdatesRequestedState(boolean requestingUpdates) {
+        getSharedPreferencesInstance()
+                .edit()
+                .putBoolean(Constants.ACTIVITY_UPDATES_REQUESTED_KEY, requestingUpdates)
+                .commit();
+    }
+
+    /**
+     * Processes the list of freshly detected activities. Asks the adapter to update its list of
+     * DetectedActivities with new {@code DetectedActivity} objects reflecting the latest detected
+     * activities.
+     */
+    protected void updateDetectedActivitiesList(ArrayList<DetectedActivity> detectedActivities) {
+        HashMap<String, Integer> detectedActivitiesMap = new HashMap<>();
+        for (DetectedActivity activity : detectedActivities) {
+            detectedActivitiesMap.put(Constants.getActivityString(this, activity.getType()), activity.getConfidence());
+        }
+
+        final List<String> sortedKeys = Ordering.natural().onResultOf(Functions.forMap(detectedActivitiesMap)).immutableSortedCopy(detectedActivitiesMap.keySet()).reverse();
+
+
+        activityQueue.add((sortedKeys.get(0).equals(DetectedActivity.UNKNOWN)?sortedKeys.get(1):sortedKeys.get(0)));
+
+        Log.i(TAG, String.valueOf(activityQueue));
+
+    }
+
+    /**
+     * Receiver for intents sent by DetectedActivitiesIntentService via a sendBroadcast().
+     * Receives a list of one or more DetectedActivity objects associated with the current state of
+     * the device.
+     */
+    public class ActivityDetectionBroadcastReceiver extends BroadcastReceiver {
+        protected static final String TAG = "activity-detection-response-receiver";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ArrayList<DetectedActivity> updatedActivities =
+                    intent.getParcelableArrayListExtra(Constants.ACTIVITY_EXTRA);
+            updateDetectedActivitiesList(updatedActivities);
+        }
+    }
+
+    public Queue<String> getActivityQueue(){
+        return activityQueue;
+    }
+
 }
 
 

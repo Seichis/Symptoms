@@ -110,7 +110,7 @@ public class MainActivity extends BaseActivity
         }
 
 
-        startActivity(new Intent(this, MovesActivity.class));
+//        startActivity(new Intent(this, ActivityRecognitionActivity.class));
 //        startActivity(new Intent(this, ProfileManagementActivity.class));
     }
 

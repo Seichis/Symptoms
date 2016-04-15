@@ -7,9 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multisets;
 import com.masterthesis.personaldata.symptoms.BackgroundService;
 import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
-import com.masterthesis.personaldata.symptoms.MainActivity;
 import com.midhunarmid.movesapi.MovesAPI;
 import com.midhunarmid.movesapi.MovesHandler;
 import com.midhunarmid.movesapi.activity.ActivityData;
@@ -49,8 +51,8 @@ public class DataManager {
     private static final String CLIENT_REDIRECTURL = "http://dfuinspector.com/";
     private static final String CLIENT_SCOPES = "activity location";
     private static final String TAG = "DataManager";
-    BackgroundService backgroundService;
     private static DataManager dataManager = new DataManager();
+    BackgroundService backgroundService;
     SymptomContext symptomContext;
     WeatherClient client;
     WeatherClient.ClientBuilder builder;
@@ -210,7 +212,7 @@ public class DataManager {
 //        config.ApiKey="fea0689d34004538e4db36555b89bf40";//Forecast IO
 //        config.ApiKey="dj0yJmk9WXM0UEN6SGtJUmlmJmQ9WVdrOVZsaHhSWFZvTmpJbWNHbzlNQS0tJnM9Y29uc3VtZXJzZWNyZXQmeD04Mw--";
         config.lang = "en"; // If you want to use english
-        backgroundService=BackgroundService.getInstance();
+        backgroundService = BackgroundService.getInstance();
         try {
             client = builder.attach(context).httpClient(WeatherDefaultClient.class).provider(new OpenweathermapProviderType()).config(config).build();
         } catch (WeatherProviderInstantiationException e) {
@@ -227,7 +229,7 @@ public class DataManager {
     }
 
     public void fetchWeatherData() {
-        final android.location.Location location=backgroundService.getCurrentLocation();
+        final android.location.Location location = backgroundService.getCurrentLocation();
 //        if (backgroundService.getCurrentLocation() == null) {
 //            location = MainActivity.getInstance().getCurrentLocation();
 //        } else {
@@ -322,12 +324,13 @@ public class DataManager {
     public void movesSummarySingleDay(String day) {
         MovesAPI.getSummary_SingleDay(summaryHandler, day, null);
     }
-/**
+
+    /**
      */
     public void movesSummaryToday() {
-        String format="yyyyMMdd";
+        String format = "yyyyMMdd";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
-        String day=sdf.format(new Date());
+        String day = sdf.format(new Date());
         MovesAPI.getSummary_SingleDay(summaryHandler, day, null);
     }
 
@@ -373,9 +376,9 @@ public class DataManager {
      * @param trp To return track points or not
      */
     public void movesStorylineToday(boolean trp) {
-        String format="yyyyMMdd";
+        String format = "yyyyMMdd";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
-        String day=sdf.format(new Date());
+        String day = sdf.format(new Date());
         MovesAPI.getStoryline_SingleDay(storylineHandler, day, null, trp);
     }
 
@@ -449,10 +452,23 @@ public class DataManager {
 
 
     public void movesActivitiesToday() {
-        String format="yyyyMMdd";
+        String format = "yyyyMMdd";
         SimpleDateFormat sdf = new SimpleDateFormat(format, Locale.ENGLISH);
-        String day=sdf.format(new Date());
+        String day = sdf.format(new Date());
         MovesAPI.getActivities_SingleDay(storylineHandler, day, null);
+    }
+
+    public String getLast30MinutesActivity() {
+
+        Multiset<String> activityCount = HashMultiset.create(BackgroundService.getInstance().getActivityQueue());
+        Log.i(TAG, String.valueOf(activityCount));
+//        for (String activity : Multisets.copyHighestCountFirst(activityCount).elementSet()) {
+//            Log.i(TAG, activity + "  " + activityCount.count(activity));
+//        }
+        String activity = Multisets.copyHighestCountFirst(activityCount).elementSet().toArray()[0].toString();
+        Log.i(TAG, activity + "  " + activityCount.count(activity));
+
+        return activity;
     }
 }
 

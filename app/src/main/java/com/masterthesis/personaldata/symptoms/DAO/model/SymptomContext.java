@@ -29,6 +29,9 @@ public class SymptomContext extends Observable {
     private String baroPressureRising;
     private String visibility;
 
+    private String duringActivity;
+    private String afterActivity;
+
     public String getAltitude() {
         return altitude;
     }

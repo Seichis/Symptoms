@@ -61,6 +61,7 @@ public class SymptomManager implements Observer {
 
     public void manageSymptomInput(double input) {
 //        final Symptom symptom = new Symptom();
+        dataManager.getLast30MinutesActivity();
         if (symptomInputList.size() == 0) {
 //            timeStamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.UK).format(new Date());
             symptom = new Symptom(new Timestamp(System.currentTimeMillis()));
