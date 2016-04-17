@@ -157,8 +157,7 @@ public class DiaryFragment extends Fragment implements CoolDragAndDropGridView.D
                             Log.i(TAG,"context " + String.valueOf(s.getContext()));
                         }
                     }
-                    Log.i(TAG, String.valueOf(symptomsMap));
-                    Log.i(TAG, String.valueOf(SymptomManager.getInstance().getAllSymptoms()));
+
                 }
             }
         } catch (SQLException e) {

@@ -24,8 +24,8 @@ import android.support.v4.app.DialogFragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -39,14 +39,16 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationServices;
 import com.google.common.base.Functions;
 import com.google.common.collect.EvictingQueue;
-import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multiset;
 import com.google.common.collect.Ordering;
 import com.j256.ormlite.android.apptools.OrmLiteBaseService;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
+import com.masterthesis.personaldata.symptoms.DAO.model.Patient;
 import com.masterthesis.personaldata.symptoms.activityrecognition.DetectedActivitiesIntentService;
 import com.masterthesis.personaldata.symptoms.broadcastreceivers.AlarmBReceiver;
+import com.masterthesis.personaldata.symptoms.managers.DataManager;
 import com.masterthesis.personaldata.symptoms.managers.DiaryManager;
+import com.masterthesis.personaldata.symptoms.managers.PatientManager;
+import com.masterthesis.personaldata.symptoms.managers.SettingsManager;
 import com.masterthesis.personaldata.symptoms.managers.SymptomManager;
 
 import java.util.ArrayList;
@@ -58,7 +60,7 @@ import io.flic.lib.FlicAppNotInstalledException;
 import io.flic.lib.FlicManager;
 import io.flic.lib.FlicManagerInitializedCallback;
 
-public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implements LocationListener,
+public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implements IBackgroundSettingsService, LocationListener,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback<Status> {
     private final static String TAG = BackgroundService.class.getName();
     private static final int notif_id = 1337;
@@ -66,13 +68,18 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
     private static PendingIntent pi;
     private static BackgroundService backgroundService;
     protected GoogleApiClient mGoogleApiClient;
+    protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
     EvictingQueue<String> activityQueue;
     MainActivity mainActivity = null;
     AlarmBReceiver alarmBReceiver = null;
     AlertDialog alert;
+    DataManager dataManager;
+    PatientManager patientManager;
+    DiaryManager diaryManager;
+    SymptomManager symptomManager;
+    SettingsManager settingsManager;
     private Location currentLocation;
     private GoogleApiClient locationClient;
-    protected ActivityDetectionBroadcastReceiver mBroadcastReceiver;
 
     public BackgroundService() {
     }
@@ -94,19 +101,26 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
     public int onStartCommand(Intent intent, int flags, int startId) {
         mainActivity = MainActivity.getInstance();
         activityQueue = EvictingQueue.create(3);
-
         backgroundService = this;
+        initializeManagers();
         runAsForeground();
-        flicSetup();
         buildAlertMessageNoGps();
-        DiaryManager diaryManager = DiaryManager.getInstance();
-        diaryManager.init(backgroundService);
-        SymptomManager symptomManager = SymptomManager.getInstance();
-        symptomManager.init(backgroundService);
         buildLocationClient();
         setupActivityRecognition();
-
         return START_NOT_STICKY;
+    }
+
+    private void initializeManagers() {
+        dataManager = DataManager.getInstance();
+        dataManager.init(backgroundService);
+        diaryManager = DiaryManager.getInstance();
+        diaryManager.init(backgroundService);
+        symptomManager = SymptomManager.getInstance();
+        symptomManager.init(backgroundService);
+        patientManager = PatientManager.getInstance();
+        patientManager.init(backgroundService);
+        settingsManager = SettingsManager.getInstance();
+        settingsManager.init(backgroundService);
     }
 
     private void setupActivityRecognition() {
@@ -150,7 +164,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
                     FlicManager.getInstance(backgroundService, new FlicManagerInitializedCallback() {
                         @Override
                         public void onInitialized(FlicManager manager) {
-                            manager.initiateGrabButton(MainActivity.getInstance());
+                            manager.initiateGrabButton(mainActivity);
 
                         }
                     });
@@ -220,7 +234,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
         if (locationClient.isConnected()) {
             currentLocation = getLocation();
         }
-        if (mGoogleApiClient.isConnected()){
+        if (mGoogleApiClient.isConnected()) {
             requestActivityUpdates();
         }
 
@@ -303,6 +317,7 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
         // requestActivityUpdates() and removeActivityUpdates().
         return PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
     @Override
     public void onConnectionSuspended(int i) {
         mGoogleApiClient.connect();
@@ -410,37 +425,28 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
 
     }
 
-    /*
-     * Define a DialogFragment to display the error dialog generated in showErrorDialog.
-     */
-    public static class ErrorDialogFragment extends DialogFragment {
-        // Global field to contain the error dialog
-        private Dialog mDialog;
+    @Override
+    public void activateFlic() {
+        flicSetup();
+    }
 
-        /**
-         * Default constructor. Sets the dialog field to null
-         */
-        public ErrorDialogFragment() {
-            super();
-            mDialog = null;
-        }
+    @Override
+    public void deactivateFlic() {
+    }
 
-        /*
-         * Set the dialog to display
-         *
-         * @param dialog An error dialog
-         */
-        public void setDialog(Dialog dialog) {
-            mDialog = dialog;
-        }
+    @Override
+    public void activateMoves(AppCompatActivity activity) {
+        dataManager.movesAuthenticate(activity);
+    }
 
-        /*
-         * This method must return a Dialog to the DialogFragment.
-         */
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            return mDialog;
-        }
+    @Override
+    public void deactivateMoves() {
+
+    }
+
+    @Override
+    public void setMode(int mode) {
+
     }
 
     /**
@@ -487,10 +493,47 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
         final List<String> sortedKeys = Ordering.natural().onResultOf(Functions.forMap(detectedActivitiesMap)).immutableSortedCopy(detectedActivitiesMap.keySet()).reverse();
 
 
-        activityQueue.add((sortedKeys.get(0).equals(DetectedActivity.UNKNOWN)?sortedKeys.get(1):sortedKeys.get(0)));
+        activityQueue.add((sortedKeys.get(0).equals(DetectedActivity.UNKNOWN) ? sortedKeys.get(1) : sortedKeys.get(0)));
 
         Log.i(TAG, String.valueOf(activityQueue));
 
+    }
+
+    public Queue<String> getActivityQueue() {
+        return activityQueue;
+    }
+
+    /*
+     * Define a DialogFragment to display the error dialog generated in showErrorDialog.
+     */
+    public static class ErrorDialogFragment extends DialogFragment {
+        // Global field to contain the error dialog
+        private Dialog mDialog;
+
+        /**
+         * Default constructor. Sets the dialog field to null
+         */
+        public ErrorDialogFragment() {
+            super();
+            mDialog = null;
+        }
+
+        /*
+         * Set the dialog to display
+         *
+         * @param dialog An error dialog
+         */
+        public void setDialog(Dialog dialog) {
+            mDialog = dialog;
+        }
+
+        /*
+         * This method must return a Dialog to the DialogFragment.
+         */
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            return mDialog;
+        }
     }
 
     /**
@@ -509,9 +552,6 @@ public class BackgroundService extends OrmLiteBaseService<DatabaseHelper> implem
         }
     }
 
-    public Queue<String> getActivityQueue(){
-        return activityQueue;
-    }
 
 }
 

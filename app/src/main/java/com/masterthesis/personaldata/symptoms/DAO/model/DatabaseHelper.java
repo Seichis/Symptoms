@@ -16,14 +16,26 @@ import com.j256.ormlite.table.TableUtils;
 public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
 
     private static final String DATABASE_NAME = "symptoms_first.db";
-    private static final int DATABASE_VERSION = 37;
+    private static final int DATABASE_VERSION = 54;
     private final String LOG_NAME = getClass().getName();
     private Dao<Diary, Integer> diaryDAO;
     private Dao<Symptom, Integer> symptomDAO;
     private Dao<Patient, Integer> patientDAO;
+    private Dao<Settings, Integer> settingsDAO;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public Dao<Settings, Integer> getSettingsDAO() {
+        if (settingsDAO == null) {
+            try {
+                settingsDAO = getDao(Settings.class);
+            } catch (java.sql.SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return settingsDAO;
     }
 
     public Dao<Patient, Integer> getPatientDAO() {
@@ -65,6 +77,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.createTable(connectionSource, Diary.class);
             TableUtils.createTable(connectionSource, Symptom.class);
             TableUtils.createTable(connectionSource, Patient.class);
+            TableUtils.createTable(connectionSource, Settings.class);
         } catch (SQLException e) {
             Log.e(LOG_NAME, "Could not create new table for Diary and symptom", e);
         } catch (java.sql.SQLException e) {
@@ -79,6 +92,7 @@ public class DatabaseHelper extends OrmLiteSqliteOpenHelper {
             TableUtils.dropTable(connectionSource, Diary.class, true);
             TableUtils.dropTable(connectionSource, Symptom.class, true);
             TableUtils.dropTable(connectionSource, Patient.class, true);
+            TableUtils.dropTable(connectionSource, Settings.class, true);
             onCreate(sqLiteDatabase, connectionSource);
         } catch (SQLException e) {
             Log.e(LOG_NAME, "Could not upgrade the table for Thing", e);

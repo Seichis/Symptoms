@@ -55,7 +55,7 @@ public class SymptomManager implements Observer {
 
     public void init(Context context) {
         this.context = context;
-        dataManager.init(context);
+//        dataManager.init(context);
         dbHelper = new DatabaseHelper(context);
     }
 

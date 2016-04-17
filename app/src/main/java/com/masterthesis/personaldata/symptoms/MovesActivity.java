@@ -46,7 +46,7 @@ public class MovesActivity extends AppCompatActivity implements View.OnClickList
 
         mButtonSubmit.setOnClickListener(this);
 
-        dataManager.init(this);
+//        dataManager.init(this);
 
     }
 

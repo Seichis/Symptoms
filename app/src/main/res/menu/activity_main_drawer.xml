@@ -3,21 +3,21 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/manage_symptoms"
             android:icon="@drawable/ic_menu_camera"
             android:title="Manage Symptoms" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/symptoms_on_map"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Symptoms on the map" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/raw_history"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="History" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/app_settings"
             android:icon="@drawable/ic_menu_manage"
-            android:title="My profile" />
+            android:title="Settings" />
     </group>
 
     <item android:title="Communicate">
