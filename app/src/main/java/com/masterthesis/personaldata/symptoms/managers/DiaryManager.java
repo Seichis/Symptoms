@@ -1,27 +1,26 @@
 package com.masterthesis.personaldata.symptoms.managers;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.SQLException;
 import android.util.Log;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
+import com.masterthesis.personaldata.symptoms.fragments.DiaryFragment;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.TreeMap;
 
-/**
- * Created by Konstantinos Michail on 2/17/2016.
- */
+
 public class DiaryManager {
     private static final String TAG = "DiaryManager";
     private static DiaryManager diaryManager = new DiaryManager();
-    private SharedPreferences preferences;
-    private SharedPreferences.Editor editor;
     private DatabaseHelper dbHelper;
+
     private Context context;
 
     private DiaryManager() {
@@ -32,15 +31,13 @@ public class DiaryManager {
         return diaryManager;
     }
 
-    public void init(Context _context) {
-        context = _context;
+    public void init(Context context) {
+        this.context = context;
         dbHelper = new DatabaseHelper(context);
-        preferences = context.getSharedPreferences("com.masterthesis.personaldata.symptoms", Context.MODE_PRIVATE);
-        editor = preferences.edit();
     }
 
     public Diary createDiary(String name, String description) {
-        Diary diary = new Diary();
+        Diary diary = new Diary(new Timestamp(System.currentTimeMillis()));
         diary.setName(name);
         diary.setDescription(description);
         try {
@@ -50,33 +47,45 @@ public class DiaryManager {
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
         }
+
         return diary;
     }
 
-    public boolean createSymptomType(Diary diary, String symType) {
-        Set<String> symTypes = null;
-        if (preferences.contains(diary.getName())) {
-            symTypes = preferences.getStringSet(diary.getName(), null);
+    public boolean addSymptomType(Diary diary, String symType) {
+        TreeMap<Integer, String> symTypes = diary.getSymptomTypes();
 
-            if (symTypes.contains(symType) || symType.length() >= 3) {
-                //TODO Handle this better for the user
+//        for (TreeMap.Entry<Integer, String> entry : symTypes.entrySet()) {
+//            Log.d("map values", entry.getKey() + ": " + entry.getValue());
+//        }
+        if (symTypes==null) {
+            symTypes=new TreeMap<>();
+            symTypes.put(1, symType);
+            diary.setSymptomTypes(new Gson().toJson(symTypes));
+            updateDiary(diary);
+            return true;
+        } else {
+            if (symTypes.containsValue(symType) || symTypes.size() >= 3) {
+                // TODO Show the user feedback that the symptom list is full for this diary:
+
                 Log.i(TAG, "This Diary has no more room for more symptoms");
                 return false;
             } else {
-                symTypes.add(symType);
-                editor.putStringSet(diary.getName(), symTypes);
-                editor.commit();
+                int size = symTypes.size()+1;
+                symTypes.put(size, symType);
+                diary.setSymptomTypes(new Gson().toJson(symTypes));
+                updateDiary(diary);
+                Log.i(TAG, "More symptom types existed.Symptom type added." + symTypes.size());
                 return true;
             }
-
-        } else {
-            symTypes = new HashSet<>();
-            symTypes.add(symType);
-            editor.putStringSet(diary.getName(), symTypes);
-            editor.commit();
-            return true;
         }
+    }
 
+    public void updateDiary(Diary diary) {
+        try {
+            dbHelper.getDiaryDAO().update(diary);
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     public void deleteDiary() {
@@ -84,12 +93,27 @@ public class DiaryManager {
     }
 
     public List<Diary> getDiaries() throws java.sql.SQLException {
-        return dbHelper.getDiaryDAO().queryForAll();
+
+        if (dbHelper.getDiaryDAO() != null) {
+            return dbHelper.getDiaryDAO().queryForAll();
+        } else {
+            return new ArrayList<>();
+        }
     }
 
+    public List<Diary> searchByName(String name) throws java.sql.SQLException {
+        return dbHelper.getDiaryDAO().queryForEq(Diary.NAME_FIELD_NAME, name);
+    }
 
     public Diary getActiveDiary() {
-        Diary mDiary = new Diary();
-        return mDiary;
+//        DiaryFragment.newInstance(new String("wow"),new String("2"))
+        if (!DiaryFragment.diaries.isEmpty()) {
+            Diary mDiary = DiaryFragment.diaries.get(0);
+            return mDiary;
+        } else {
+            return null;
+        }
     }
+
 }
+

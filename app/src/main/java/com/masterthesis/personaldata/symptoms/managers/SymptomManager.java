@@ -4,21 +4,27 @@ import android.content.Context;
 import android.database.SQLException;
 import android.os.CountDownTimer;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
 import com.masterthesis.personaldata.symptoms.DAO.model.DatabaseHelper;
 import com.masterthesis.personaldata.symptoms.DAO.model.Diary;
 import com.masterthesis.personaldata.symptoms.DAO.model.Symptom;
 import com.masterthesis.personaldata.symptoms.DAO.model.SymptomContext;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.TreeMap;
 
 /**
  * Created by Konstantinos Michail on 2/14/2016.
@@ -27,13 +33,16 @@ public class SymptomManager implements Observer {
     static List<Double> symptomInputList = new ArrayList<>();
     static SymptomManager symptomManager = new SymptomManager();
     static String TAG = "SymptomManager";
-    Context context;
+    boolean isWeatherException = false; //Check if an exception was caught while getting the weather
+
+    //    Context context;
 //    Date timeStamp = null;
+    Diary diary;
     Symptom symptom;
     DataManager dataManager = DataManager.getInstance();
     CountDownTimer countDownTimer;
     DatabaseHelper dbHelper;
-
+    Context context;
     private boolean isCountDown;
 
     private SymptomManager() {
@@ -44,42 +53,85 @@ public class SymptomManager implements Observer {
         return symptomManager;
     }
 
-    public void init(Context _context) {
-        context = _context;
-        dataManager.init(context);
-        dbHelper=new DatabaseHelper(context);
+    public void init(Context context) {
+        this.context = context;
+//        dataManager.init(context);
+        dbHelper = new DatabaseHelper(context);
     }
 
     public void manageSymptomInput(double input) {
 //        final Symptom symptom = new Symptom();
-
+        dataManager.getLast30MinutesActivity();
         if (symptomInputList.size() == 0) {
 //            timeStamp = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.UK).format(new Date());
-            symptom = new Symptom(new Date());
+            symptom = new Symptom(new Timestamp(System.currentTimeMillis()));
             // A symptom occured. get the weather data and start a timer for ending the registration of a symptom
             dataManager.fetchWeatherData();
             isCountDown = true;
+
+//            SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.UK);
+
+
+//            dataManager.movesStorylineDay(format.format(new Date()),true);
+
+
             countDownTimer = new CountDownTimer(15000, 1000) {
 
                 public void onTick(long millisUntilFinished) {
+                    // If an exception is caught and it is not a network exception try to get weather again
+                    if (isWeatherException) {
+                        dataManager.fetchWeatherData();
+                    }
                     Log.i(TAG, "seconds remaining: " + millisUntilFinished / 1000);
                 }
 
                 public void onFinish() {
-//                    symptom.setTimestamp(timeStamp);
-                    Gson gson=new Gson();
-                    String sContext=gson.toJson(dataManager.getSymptomContext(),SymptomContext.class);
+//                    Runnable r = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+//                                @Override
+//                                public void run() {
+//
+//
+//                                }
+//                            });
+//                        }
+//                    };
+//                    new Thread(r).start();
+
+                    Gson gson = new Gson();
+                    dataManager.getSymptomContext().deleteObservers();
+                    String sContext = gson.toJson(dataManager.getSymptomContext(), SymptomContext.class);
+
                     symptom.setContext(sContext);
+                    Log.i(TAG, "Symptom context: " + symptom.getContext());
+
                     symptom.setIntensity(Collections.max(symptomInputList));
-                    symptom.setDiary(DiaryManager.getInstance().getActiveDiary());
-                    int symptomType = symptomInputList.size() - 1;
-                    //TODO add the real symptom saved in shared preferences probably
-                    symptom.setSymptomType(String.valueOf(symptomType));
-                    //TODO save the completed symptom in the db
-                    if (symptom.isValid()) {
-                        Log.i(TAG, "Symptom saved");
-                        saveSymptomInput();
+                    diary = DiaryManager.getInstance().getActiveDiary();
+                    symptom.setDiary(diary);
+
+                    int symptomT = symptomInputList.size() - 1;
+                    TreeMap<Integer, String> symptomTypes =diary.getSymptomTypes();
+                    if (!symptomTypes.isEmpty()) {
+                        for (TreeMap.Entry<Integer, String> st : symptomTypes.entrySet()) {
+                            int position = st.getKey();
+                            String type = st.getValue();
+                            Log.i(TAG, "symptom type" + type);
+
+                            if (position == symptomT) {
+                                Log.i(TAG, "symptom type" + position);
+                                symptom.setSymptomType(type);
+                            }
+                        }
                     }
+                    saveSymptomInput();
+
+
+//                    //TODO save the completed symptom in the db
+//                    if (symptom.isValid()) {
+//                        Log.i(TAG, "Symptom saved");
+//                    }
                     isCountDown = false;
                 }
             }.start();
@@ -93,6 +145,7 @@ public class SymptomManager implements Observer {
         }
     }
 
+
     private void resetSymptomInput() {
         symptomInputList.clear();
         Log.i(TAG, "List cleared");
@@ -100,14 +153,16 @@ public class SymptomManager implements Observer {
     }
 
     private void saveSymptomInput() {
-        resetSymptomInput();
         try {
             dbHelper.getSymptomDAO().create(symptom);
-            Log.i(TAG,"Symptom saved to database");
+//            dbHelper.getDiaryDAO().update(diary);
+            Log.i(TAG, "Symptom saved to database");
         } catch (SQLException e) {
             throw new RuntimeException("Could not create a new Thing in the database", e);
         } catch (java.sql.SQLException e) {
             e.printStackTrace();
+        } finally {
+            resetSymptomInput();
         }
     }
 
@@ -133,16 +188,60 @@ public class SymptomManager implements Observer {
             Log.i(TAG, data.toString());
             if (data.toString().contains("Network")) {
                 // No network available do not retry to get info
+                Log.i(TAG, "Network error");
 
             } else {
-                dataManager.fetchWeatherData();
+                Log.i(TAG, "error" + data.toString());
+
+                isWeatherException = true;
             }
 
         } else if (data.toString().equals("Error")) {
-            Toast.makeText(context, "Unknown error occured. Contact the administrator", Toast.LENGTH_LONG).show();
+            Log.i(TAG, "Unknown error occured. Contact the administrator");
         }
     }
 
+    public List<Symptom> getAllSymptoms() throws java.sql.SQLException {
+
+        if (dbHelper.getSymptomDAO() != null) {
+            return dbHelper.getSymptomDAO().queryForAll();
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public HashMap<String, List<Symptom>> getSymptomsByDiary(Diary diary) throws java.sql.SQLException {
+        TreeMap<Integer, String> symptomTypes = diary.getSymptomTypes();
+        HashMap<String, List<Symptom>> symptomsMap = new HashMap<>();
+        if (symptomTypes != null) {
+            for (String type : symptomTypes.values()) {
+                symptomsMap.put(type, dbHelper.getSymptomDAO().queryForEq("type", type));
+            }
+
+        }
+        return symptomsMap;
+    }
+
+    public ArrayList<LatLng> getSymptomslatLonByType(String type){
+        ArrayList<LatLng> mlist=new ArrayList<>();
+        List<Symptom> symptoms;
+        try {
+            symptoms=dbHelper.getSymptomDAO().queryForEq("type",type);
+            for (Symptom s:symptoms){
+                JsonObject ctx=s.getSymptomContext().get("latLng").getAsJsonObject();
+                LatLng point=new LatLng(Double.parseDouble(ctx.get("latitude").toString()),Double.parseDouble(ctx.get("longitude").toString()));
+                mlist.add(point);
+//                mlist.add(new LatLng(55.33,23.32));
+                Log.i(TAG,"context"+String.valueOf(s.getContext()));
+                Log.i(TAG,"type"+String.valueOf(s.getSymptomType()));
+                Log.i(TAG,"intensity"+String.valueOf(s.getIntensity()));
+            }
+            return mlist;
+        } catch (java.sql.SQLException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 
 
 }

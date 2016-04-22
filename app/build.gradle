@@ -24,6 +24,7 @@ android {
 }
 repositories {
     jcenter()
+    mavenCentral()
     maven { url "https://jitpack.io" }
 }
 
@@ -32,20 +33,29 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile project(':fliclib')
     compile project(':movesAndroidAPI')
-    compile project(':yWeatherGetter4a')
     compile 'com.google.android.gms:play-services-maps:8.4.0'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.android.support:percent:23.1.1'
-    compile 'com.android.support:appcompat-v7:23.1.1'
-    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:percent:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:design:23.3.0'
     compile 'com.google.code.gson:gson:2.5'
     compile 'com.jakewharton:butterknife:7.0.1'
-    compile 'com.github.PhilJay:MPAndroidChart:v2.2.0'
     compile 'com.ogaclejapan.smarttablayout:library:1.6.0@aar'
     compile 'com.ogaclejapan.smarttablayout:utils-v4:1.6.0@aar'
-    compile 'com.android.support:support-v4:23.1.1'
-    compile 'com.roomorama:caldroid:2.3.1'
+    compile 'com.android.support:support-v4:23.3.0'
+    compile 'com.prolificinteractive:material-calendarview:1.2.0'
     compile 'com.j256.ormlite:ormlite-core:4.48'
     compile 'com.j256.ormlite:ormlite-android:4.48'
+    compile 'com.github.PhilJay:MPAndroidChart:v2.2.4'
+    compile 'com.github.paolorotolo:appintro:3.4.0'
+    compile 'com.survivingwithandroid:weatherlib:1.6.0'
+    compile 'com.survivingwithandroid:weatherlib_okhttpclient:1.6.0'
+    compile 'com.squareup.okhttp:okhttp:2.3.0'
+    compile 'com.redbooth:WelcomeCoordinator:1.0.1'
+    compile 'com.google.guava:guava:19.0'
+    compile 'com.wrapp.floatlabelededittext:library:0.0.6'
+    compile 'com.andreabaccega:android-form-edittext:1.2.1@aar'
+    compile 'com.google.maps.android:android-maps-utils:0.4.3'
+    compile 'com.nineoldandroids:library:2.4.0'
 }

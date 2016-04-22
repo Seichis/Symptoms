@@ -2,6 +2,7 @@ package com.masterthesis.personaldata.symptoms.DAO.model;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.Serializable;
 import java.util.Observable;
 
 /**
@@ -27,6 +28,19 @@ public class SymptomContext extends Observable {
     private String pressure;
     private String baroPressureRising;
     private String visibility;
+
+    private String duringActivity;
+    private String afterActivity;
+
+    public String getAltitude() {
+        return altitude;
+    }
+
+    public void setAltitude(String altitude) {
+        this.altitude = altitude;
+    }
+
+    private String altitude;
 
 
     public SymptomContext() {

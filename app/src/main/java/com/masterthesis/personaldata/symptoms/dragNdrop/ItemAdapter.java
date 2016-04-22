@@ -1,6 +1,7 @@
 package com.masterthesis.personaldata.symptoms.dragNdrop;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -64,6 +65,10 @@ public class ItemAdapter extends ArrayAdapter<Item> implements SpanVariableGridV
             itemViewHolder.itemTitle = (TextView) convertView.findViewById(R.id.textViewTitle);
             itemViewHolder.itemDescription = (TextView) convertView.findViewById(R.id.textViewDescription);
             itemViewHolder.itemIcon = (ImageView) convertView.findViewById(R.id.imageViewIcon);
+            // The first item of the list is considered the active Diary so make it green
+            if (position == 0) {
+                convertView.setBackgroundColor(Color.GREEN);
+            }
             convertView.setTag(itemViewHolder);
 
         } else {

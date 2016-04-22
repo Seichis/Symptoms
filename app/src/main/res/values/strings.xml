@@ -81,4 +81,47 @@
     <string name="customize">Customize</string>
     <string name="show_dialog">Show Dialog</string>
     <string name="undo">Undo</string>
+    <string name="title_activity_second_intro">Create Diary</string>
+
+
+    <!-- App intro-->
+    <string name="skip">Y U DO DIS TO ME?</string>
+
+    <string name="speech_prompt">Say something…</string>
+    <string name="speech_not_supported">Sorry! Your device doesn\'t support speech input</string>
+    <string name="permission_location_rationale">We need to save your location so that we can combine information about the context in which these symptoms occured and provide you with better treatment</string>
+    <string name="ok">Permit</string>
+    <string name="permision_available_location">Permission to get your location is granted</string>
+    <string name="permissions_not_granted">Permission to access this device location was denied.</string>
+    <string name="manage_profile">Edit your profile</string>
+    <string name="profile_name">Hi %1$s</string>
+
+    <string name="input_text">Looking for...</string>
+    <string name="button_send">Go!</string>
+    <string name="police_stations">Police Stations in Victoria</string>
+    <string name="medicare">Medicare Offices</string>
+    <string name="attrib_format">Data from &lt;a href = "%s">data.gov.au&lt;/a>, modified under &lt;a href = \"http://creativecommons.org/licenses/by/3.0/au/\">CC BY 3.0 AU&lt;/a></string>
+    <string name="police_stations_url">http://data.gov.au/dataset/police-station-locations/resource/76110b24-0f0a-4c29-9583-3f99eaba486c</string>
+    <string name="medicare_url">http://data.gov.au/dataset/location-of-medicare-offices/resource/5d38e1be-4011-49c4-8b8b-75405eeb1088</string>
+    <string name="remove">Remove</string>
+    <string name="add">Add</string>
+    <string name="visibility">Toggle Vis</string>
+    <string name="settings_no_mode">No Flic button? Log symptom occurrence traditionally</string>
+    <string name="settings_binary_mode">Log symptom occurrence using a Flic button</string>
+    <string name="settings_full_button_mode">Log intensity and symptom occurrence using a Flic button</string>
+    <string name="settings_mode_text">Choose a mode to log symptoms</string>
+    <string name="settings_activate_api_consumption">Choose a third party app to integrate data from</string>
+    <string name="activate_moves_switch">Moves</string>
+    <string name="activate_lifelog_switch">Lifelog</string>
+    <string name="settings_activate_flic">Connect Flic button</string>
+    <string name="activate_flic_switch">Flic Button</string>
+    <string name="apply_changes">Apply</string>
+    <string name="discard_changes">Discard</string>
+    <string name="intro_ask_name">How shall we call you?</string>
+    <string name="save_patient_info">Next</string>
+    <string name="male_female">Pick your genre</string>
+    <string-array name="heatmaps_datasets_array">
+        <item>@string/police_stations</item>
+        <item>@string/medicare</item>
+    </string-array>
 </resources>

@@ -13,4 +13,6 @@
 
     <dimen name="progress_bar_min_height">6dp</dimen>
     <dimen name="progress_bar_top_margin">4dp</dimen>
+    <dimen name="custom_profile_image">50dp</dimen>
+    <dimen name="custom_profile_padding">2dp</dimen>
 </resources>

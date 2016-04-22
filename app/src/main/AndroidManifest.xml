@@ -13,12 +13,16 @@
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
 
     <!--
      The following permission is not required to use
      Google Maps Android API v2, but is recommended.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="com.google.android.gms.permission.ACTIVITY_RECOGNITION" />
 
     <application
         android:allowBackup="true"
@@ -39,42 +43,33 @@
         </activity>
 
         <receiver
-            android:name=".CustomFlicBroadcastReceiver"
+            android:name=".broadcastreceivers.CustomFlicBroadcastReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
                 <action android:name="io.flic.FLICLIB_EVENT" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".broadcastreceivers.AlarmBReceiver"
             android:enabled="true"
-            android:exported="true"/>
-
+            android:exported="true" />
         <receiver
             android:name=".broadcastreceivers.BootBReceiver"
             android:enabled="true"
             android:exported="true">
-            <!--android:permission="android.permission.RECEIVE_BOOT_COMPLETED">-->
+
+            <!-- android:permission="android.permission.RECEIVE_BOOT_COMPLETED"> -->
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
         </receiver>
 
-        <activity
-            android:name=".ActivityRecognitionActivity"
-            android:label="@string/title_activity_activity_recognition"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <!--
-        Service that provides activity recognition data. Setting the android:exported attribute
-        to "false" stops other apps from starting this service, even when using an explicit
-        intent.
-        -->
+        <!-- Service that provides activity recognition data. Setting the android:exported attribute to "false" stops other apps from starting this service, even when using an explicit intent. -->
+
         <service
             android:name=".activityrecognition.DetectedActivitiesIntentService"
             android:exported="false" />
@@ -89,12 +84,69 @@
             android:name=".BackgroundService"
             android:enabled="true"
             android:exported="true" />
+        <service
+            android:name=".VoiceRecognitionService"
+            android:enabled="true"
+            android:exported="true" />
 
         <activity
-            android:name=".CaldroidActivity"
-            android:label="@string/title_activity_caldroid"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".DAO.ThingActivity"/>
+            android:name=".welcomewizard.WelcomeMain"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait" />
+        <activity android:name=".VoiceToTextActivity" />
+        <activity android:name=".ProfileManagementActivity" />
+        <activity android:name=".maps.MapsActivity" />
+        <activity
+            android:name=".maps.PolyDecodeDemoActivity"
+            android:screenOrientation="portrait" />
+
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value=" AIzaSyAR5w-zKoPHGaiDYBW0CcleWXtKI5JWNV0" />
+
+        <activity
+            android:name=".maps.PolySimplifyDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.IconGeneratorDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.DistanceDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.ClusteringDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.BigClusteringDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.CustomMarkerClusteringDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.TileProviderAndProjectionDemo"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.HeatmapsDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.HeatmapsPlacesDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.GeoJsonDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.KmlDemoActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".maps.MainMapsActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".SettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".CreatePatientActivity"></activity>
     </application>
 
 </manifest>
